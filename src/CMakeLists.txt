@@ -1,5 +1,5 @@
 
-add_executable(golitaire main.cpp App.cpp App.h)
+add_executable(golitaire main.cpp App.cpp App.h LTK/Shader.cpp LTK/Shader.h LTK/Program.cpp LTK/Program.h)
 
 set_target_properties(golitaire
         PROPERTIES

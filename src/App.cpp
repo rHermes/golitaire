@@ -3,6 +3,8 @@
 //
 
 #include "App.h"
+#include "LTK/Shader.h"
+#include "LTK/Program.h"
 #include <fmt/core.h>
 
 #include <fstream>
@@ -36,38 +38,26 @@ App::~App() {
 void App::run() {
     createWindow();
 
-
-
-
-    GLuint vertexShader = createShader(GL_VERTEX_SHADER, "data/shaders/default_vtx.glsl");
-    GLuint fragmentShader = createShader(GL_FRAGMENT_SHADER, "data/shaders/default_frag.glsl");
-    GLuint fragmentShader2 = createShader(GL_FRAGMENT_SHADER, "data/shaders/alt.frag");
-
-    GLuint shaderProgram = createProgram({vertexShader, fragmentShader});
-    GLuint shaderProgram2 = createProgram({vertexShader, fragmentShader2});
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    glUseProgram(shaderProgram);
+    auto vertexShader = LTK::Shader::loadFromDisk(LTK::Shader::Type::Vertex, "data/shaders/default.vert");
+    auto fragmentShader = LTK::Shader::loadFromDisk(LTK::Shader::Type::Fragment, "data/shaders/default.frag");
+    LTK::Program shaderProgram({std::cref(vertexShader), std::cref(fragmentShader)});
 
 
     const auto vertices = std::to_array({
-        glm::vec3(0.5f,  0.5f, 0.0f),  // top right
-        glm::vec3(0.5f, -0.5f, 0.0f),  // bottom right
-        glm::vec3(-0.5f, -0.5f, 0.0f),  // bottom left
-        glm::vec3(-0.5f,  0.5f, 0.0f)   // top left
+        glm::vec3(0.5f,  0.5f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f),  // top right
+        glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), // bottom right
+        glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f),  // bottom left
+        glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f),  // top left
     });
 
     std::array<std::remove_cv_t<decltype(vertices)>,2> verts{};
-    for (int i = 0; i < vertices.size(); i++) {
+    for (int i = 0; i < vertices.size(); i += 2) {
         auto t = vertices[i] * 0.5f;
         verts[0][i] = t + glm::vec3(-0.5, 0, 0);
+        verts[0][i+1] = vertices[i+1];
         verts[1][i] = t + glm::vec3(0.5, 0, 0);
+        verts[1][i+1] = vertices[i+1];
     }
-
-    fmt::print("wow {}\n", glm::to_string(verts[0][0]));
-    fmt::print("wew {}\n", glm::to_string(verts[1][0]));
 
     auto indices = std::to_array<unsigned int>({  // note that we start from 0!
             0, 1, 3,   // first triangle
@@ -91,42 +81,39 @@ void App::run() {
     for (int i = 0; i < verts.size(); i++) {
         glBindVertexArray(VAOs[i]);
 
-
-
         glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
         glBufferData(GL_ARRAY_BUFFER, verts[i].size() * sizeof(verts[i][0]), verts[i].data(), GL_STATIC_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[0]);
 
-        glVertexAttribPointer(0, verts[i][0].length(), GL_FLOAT, GL_FALSE, sizeof(verts[i][0]), nullptr);
+        glVertexAttribPointer(0, verts[i][0].length(), GL_FLOAT, GL_FALSE, 2*sizeof(verts[i][0]), nullptr);
+        glVertexAttribPointer(1, verts[i][0].length(), GL_FLOAT, GL_FALSE, 2*sizeof(verts[i][0]),
+                              reinterpret_cast<const void *>(sizeof(verts[i][0])));
         glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
     }
 
 
 
     glClearColor(0.87,0.11,0.72, 1.0);
 
-    float prevTime = glfwGetTime();
+    const double startTime = glfwGetTime();
+    double prevTime = startTime;
     while (!glfwWindowShouldClose(window)) {
-        const float currentTime = glfwGetTime();
-        const float deltaTime = currentTime - prevTime;
+        const double currentTime = glfwGetTime();
+        const double deltaTime = currentTime - prevTime;
+        const double secondsSinceStart = currentTime - startTime;
 
         // Rendering loop
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(shaderProgram);
+        float greenValue = static_cast<float>(std::sin(secondsSinceStart)) / 2.0f + 0.5f;
 
+        shaderProgram.use();
         for (int i = 0; i < VAOs.size(); i++) {
-            if (i == 0) {
-                glUseProgram(shaderProgram);
-            } else {
-                glUseProgram(shaderProgram2);
-            }
             glBindVertexArray(VAOs[i]);
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
         }
-
-
 
 
         glfwSwapBuffers(window);
