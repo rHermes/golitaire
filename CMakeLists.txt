@@ -10,6 +10,7 @@ add_subdirectory("extern/fmt")
 add_subdirectory("extern/glad2")
 add_subdirectory("extern/glfw")
 add_subdirectory("extern/glm")
+add_subdirectory("extern/stb")
 
 add_subdirectory("src/")
 

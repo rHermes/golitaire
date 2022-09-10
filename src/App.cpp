@@ -5,6 +5,7 @@
 #include "App.h"
 #include "LTK/Shader.h"
 #include "LTK/Program.h"
+#include "stb/stb_image.h"
 #include <fmt/core.h>
 
 #include <fstream>
@@ -34,6 +35,21 @@ App::~App() {
     glfwTerminate();
 }
 
+struct VertexData {
+    glm::vec3 pos;
+    glm::vec3 color;
+    glm::vec2 texCoords;
+
+    static void registerVertexAttributes() {
+        glVertexAttribPointer(0, decltype(pos)::length(), GL_FLOAT, GL_FALSE, sizeof(VertexData), reinterpret_cast<const GLvoid*>(offsetof(VertexData, pos)));
+        glVertexAttribPointer(1, decltype(color)::length(), GL_FLOAT, GL_FALSE, sizeof(VertexData), reinterpret_cast<const GLvoid*>(offsetof(VertexData, color)));
+        glVertexAttribPointer(2, decltype(texCoords)::length(), GL_FLOAT, GL_FALSE, sizeof(VertexData), reinterpret_cast<const GLvoid*>(offsetof(VertexData, texCoords)));
+
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+    }
+};
 
 void App::run() {
     createWindow();
@@ -43,26 +59,69 @@ void App::run() {
     LTK::Program shaderProgram({std::cref(vertexShader), std::cref(fragmentShader)});
 
 
-    const auto vertices = std::to_array({
-        glm::vec3(0.5f,  0.5f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f),  // top right
-        glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), // bottom right
-        glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f),  // bottom left
-        glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f),  // top left
-    });
+    std::vector<VertexData> vertices = {
+            {{0.5f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}}, // Top right
+            {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}, // bottom right
+            {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // bottom left
+            {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}, // top left
+    };
 
-    std::array<std::remove_cv_t<decltype(vertices)>,2> verts{};
-    for (int i = 0; i < vertices.size(); i += 2) {
-        auto t = vertices[i] * 0.5f;
-        verts[0][i] = t + glm::vec3(-0.5, 0, 0);
-        verts[0][i+1] = vertices[i+1];
-        verts[1][i] = t + glm::vec3(0.5, 0, 0);
-        verts[1][i+1] = vertices[i+1];
+    std::vector<GLuint> indices = {
+            0, 1, 3, // First triangle
+            1, 2, 3 // Second triangle
+    };
+
+
+    GLuint texture1;
+    {
+        // Texture generation
+        glGenTextures(1, &texture1);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_set_flip_vertically_on_load(true);
+
+        int width, height, nrChannels;
+        unsigned char *data = stbi_load("data/textures/container.jpg", &width, &height, &nrChannels, 0);
+        if (data) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        } else {
+            throw std::runtime_error("Failed to load texture");
+        }
+
+        stbi_image_free(data);
     }
 
-    auto indices = std::to_array<unsigned int>({  // note that we start from 0!
-            0, 1, 3,   // first triangle
-            1, 2, 3    // second triangle
-    });
+    GLuint texture2;
+    {
+        //glActiveTexture(GL_TEXTURE1);
+        // Texture generation
+        glGenTextures(1, &texture2);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_set_flip_vertically_on_load(true);
+
+        int width, height, nrChannels;
+        unsigned char *data = stbi_load("data/textures/awesomeface.png", &width, &height, &nrChannels, 0);
+        if (data) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        } else {
+            throw std::runtime_error("Failed to load texture");
+        }
+
+        stbi_image_free(data);
+    }
 
 
     std::array<GLuint, 2> VAOs{};
@@ -78,22 +137,24 @@ void App::run() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[0]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
 
-    for (int i = 0; i < verts.size(); i++) {
+    for (int i = 0; i < 1; i++) {
         glBindVertexArray(VAOs[i]);
 
         glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
-        glBufferData(GL_ARRAY_BUFFER, verts[i].size() * sizeof(verts[i][0]), verts[i].data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STATIC_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[0]);
 
-        glVertexAttribPointer(0, verts[i][0].length(), GL_FLOAT, GL_FALSE, 2*sizeof(verts[i][0]), nullptr);
-        glVertexAttribPointer(1, verts[i][0].length(), GL_FLOAT, GL_FALSE, 2*sizeof(verts[i][0]),
-                              reinterpret_cast<const void *>(sizeof(verts[i][0])));
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
+
+        using T = decltype(vertices)::value_type;
+        T::registerVertexAttributes();
     }
 
 
+    // set the sampling thing
+    shaderProgram.use();
+    shaderProgram.setInt("texture1", 0);
+    shaderProgram.setInt("texture2", 1);
 
     glClearColor(0.87,0.11,0.72, 1.0);
 
@@ -104,13 +165,24 @@ void App::run() {
         const double deltaTime = currentTime - prevTime;
         const double secondsSinceStart = currentTime - startTime;
 
+
         // Rendering loop
         glClear(GL_COLOR_BUFFER_BIT);
 
-        float greenValue = static_cast<float>(std::sin(secondsSinceStart)) / 2.0f + 0.5f;
 
         shaderProgram.use();
-        for (int i = 0; i < VAOs.size(); i++) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+
+
+
+        float greenValue = static_cast<float>(std::sin(secondsSinceStart)) / 2.0f + 0.5f;
+
+
+
+        for (int i = 0; i < 1; i++) {
             glBindVertexArray(VAOs[i]);
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
         }

@@ -1,5 +1,5 @@
 
-add_executable(golitaire main.cpp App.cpp App.h LTK/Shader.cpp LTK/Shader.h LTK/Program.cpp LTK/Program.h)
+add_executable(golitaire main.cpp App.cpp App.h LTK/Shader.cpp LTK/Shader.h LTK/Program.cpp LTK/Program.h stb_image_implementation.cpp)
 
 set_target_properties(golitaire
         PROPERTIES
@@ -12,6 +12,7 @@ target_link_libraries(golitaire PRIVATE fmt::fmt)
 target_link_libraries(golitaire PRIVATE glad2)
 target_link_libraries(golitaire PRIVATE glfw)
 target_link_libraries(golitaire PRIVATE glm::glm)
+target_link_libraries(golitaire PRIVATE stb)
 
 add_custom_target(copy_data
         COMMAND ${CMAKE_COMMAND} -E copy_directory
