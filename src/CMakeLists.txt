@@ -1,5 +1,5 @@
 
-add_executable(golitaire main.cpp App.cpp App.h glfw_cpp/Context.cpp glfw_cpp/Context.h)
+add_executable(golitaire main.cpp App.cpp App.h)
 
 set_target_properties(golitaire
         PROPERTIES
@@ -11,3 +11,10 @@ set_target_properties(golitaire
 target_link_libraries(golitaire PRIVATE fmt::fmt)
 target_link_libraries(golitaire PRIVATE glad2)
 target_link_libraries(golitaire PRIVATE glfw)
+target_link_libraries(golitaire PRIVATE glm::glm)
+
+add_custom_target(copy_data
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/data
+        ${CMAKE_CURRENT_BINARY_DIR}/data)
+add_dependencies(golitaire copy_data)
