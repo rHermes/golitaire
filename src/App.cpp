@@ -58,13 +58,57 @@ void App::run() {
     auto fragmentShader = LTK::Shader::loadFromDisk(LTK::Shader::Type::Fragment, "data/shaders/default.frag");
     LTK::Program shaderProgram({std::cref(vertexShader), std::cref(fragmentShader)});
 
+    auto rawVertices = std::to_array({
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-    std::vector<VertexData> vertices = {
-            {{0.5f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}}, // Top right
-            {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}, // bottom right
-            {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // bottom left
-            {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}, // top left
-    };
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    });
+
+    std::vector<VertexData> vertices;
+    for (int i = 0; i < rawVertices.size(); i += 5) {
+        vertices.emplace_back(
+                glm::vec3{rawVertices[i], rawVertices[i+1], rawVertices[i+2]},
+                glm::vec3{0.0f, 0.0f, 0.0f},
+                glm::vec2{rawVertices[i+3], rawVertices[i+4]});
+    }
 
     std::vector<GLuint> indices = {
             0, 1, 3, // First triangle
@@ -156,7 +200,22 @@ void App::run() {
     shaderProgram.setInt("texture1", 0);
     shaderProgram.setInt("texture2", 1);
 
+    glEnable(GL_DEPTH_TEST);
+
     glClearColor(0.87,0.11,0.72, 1.0);
+
+    std::vector<glm::vec3> cubePositions = {
+            glm::vec3( 0.0f,  0.0f,  0.0f),
+            glm::vec3( 2.0f,  5.0f, -15.0f),
+            glm::vec3(-1.5f, -2.2f, -2.5f),
+            glm::vec3(-3.8f, -2.0f, -12.3f),
+            glm::vec3( 2.4f, -0.4f, -3.5f),
+            glm::vec3(-1.7f,  3.0f, -7.5f),
+            glm::vec3( 1.3f, -2.0f, -2.5f),
+            glm::vec3( 1.5f,  2.0f, -2.5f),
+            glm::vec3( 1.5f,  0.2f, -1.5f),
+            glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
 
     const double startTime = glfwGetTime();
     double prevTime = startTime;
@@ -167,7 +226,7 @@ void App::run() {
 
 
         // Rendering loop
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
         shaderProgram.use();
@@ -177,14 +236,28 @@ void App::run() {
         glBindTexture(GL_TEXTURE_2D, texture2);
 
 
+        glm::mat4 view(1.0f);
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
-        float greenValue = static_cast<float>(std::sin(secondsSinceStart)) / 2.0f + 0.5f;
+        glm::mat4 projection = glm::perspectiveFov(glm::radians(45.0f),
+                                                static_cast<float>(windowWidth),
+                                                static_cast<float>(windowHeight),
+                                                0.1f, 100.0f);
+        glm::mat4 vp = projection * view;
 
 
+        for (int j = 0; j < 1; j++) {
+            glBindVertexArray(VAOs[j]);
+            for (int i = 0; i < cubePositions.size(); i++) {
+                glm::mat4 model(1.0f);
+                model = glm::translate(model, cubePositions[i]);
+                float angle = 20.0f * i;
+                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+                shaderProgram.setMat4("mvp", vp * model);
+                glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+            }
+            // glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 
-        for (int i = 0; i < 1; i++) {
-            glBindVertexArray(VAOs[i]);
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
         }
 
 
@@ -295,73 +368,6 @@ void App::glfwFramebufferSizeCallback_(GLFWwindow *window, int width, int height
 
 void App::glfwErrorCallback_(int code, const char *description) {
     fmt::print("We got an error glfw_cpp: {} {}\n", code, description);
-}
-
-std::string App::readFile(std::string filename) {
-    std::ifstream ifs(filename, std::ios_base::in);
-    if (!ifs.is_open()) {
-        throw std::runtime_error("None existant file: " + filename);
-    }
-    std::stringstream strStream;
-
-    strStream << ifs.rdbuf();
-    return strStream.str();
-}
-
-GLuint App::createShader(GLenum shaderType, std::string filename) {
-
-    std::filesystem::path cwd = std::filesystem::current_path();
-
-    std::string src = readFile(filename);
-
-    GLuint shader = glCreateShader(shaderType);
-    if (useGlDebug) {
-        glObjectLabelKHR(GL_SHADER_KHR, shader, -1, filename.c_str());
-    }
-
-    auto ww = src.c_str();
-    glShaderSource(shader, 1, &ww, nullptr);
-    glCompileShader(shader);
-
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        GLint bufferSize;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &bufferSize);
-
-        std::vector<GLchar> buffer(bufferSize + 1);
-        glGetShaderInfoLog(shader, buffer.size(), nullptr, buffer.data());
-
-        fmt::print("Failed to compile shader {}:\n{}\n", filename, buffer.data());
-
-        throw std::runtime_error("Shader compilation failed");
-    }
-
-    return shader;
-}
-
-GLuint App::createProgram(const std::vector<GLuint> &shaders) {
-    GLuint program = glCreateProgram();
-    for (const auto& shader : shaders) {
-        glAttachShader(program, shader);
-    }
-    glLinkProgram(program);
-
-    GLint success;
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if (!success) {
-        GLint bufferSize;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufferSize);
-
-        std::vector<GLchar> buffer(bufferSize + 1);
-        glGetProgramInfoLog(program, buffer.size(), nullptr, buffer.data());
-
-        fmt::print("Failed to link program:\n{}\n", buffer.data());
-
-        throw std::runtime_error("Shader Program linking failed");
-    }
-
-    return program;
 }
 
 void App::glKHRDebugOutputCallback(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length,

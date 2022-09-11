@@ -27,11 +27,6 @@ private:
             GLsizei length, const char *message, const void *userParam
             );
 
-
-    [[nodiscard]] std::string readFile(std::string filename);
-    [[nodiscard]] GLuint createShader(GLenum shaderType, std::string filename);
-    [[nodiscard]] GLuint createProgram(const std::vector<GLuint>& shaders);
-
     void handleKeyInput(int key, int scancode, int action, int mods);
     void handleFramebufferSizeEvent(int width, int height);
     void handleKHRDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity,
