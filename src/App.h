@@ -9,12 +9,17 @@
 #include <GLFW/glfw3.h>
 #include <string>
 #include <vector>
+#include "Game.h"
 
 namespace gol {
-
+/// The App is responsible for window and GLFW management. This is
+/// the class that you would replace if you where porting this to
+/// SDL
 class App {
 
 private:
+    Game game;
+
     const bool wantGlDebug = true;
     bool useGlDebug = false;
 
@@ -27,6 +32,8 @@ private:
             GLsizei length, const char *message, const void *userParam
             );
 
+
+
     void handleKeyInput(int key, int scancode, int action, int mods);
     void handleFramebufferSizeEvent(int width, int height);
     void handleKHRDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity,
@@ -35,7 +42,7 @@ private:
     int windowWidth{640};
     int windowHeight{480};
 
-    GLFWwindow* window;
+    GLFWwindow* window{nullptr};
 
     void createWindow();
 

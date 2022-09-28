@@ -3,19 +3,19 @@
 //
 
 #include <vector>
-#include "Program.h"
+#include "ShaderProgram.h"
 #include "glm/gtc/type_ptr.hpp"
 
 using namespace LTK;
 
-Program::Program(GLuint ID) : ID_{ID} {
+ShaderProgram::ShaderProgram(GLuint ID) : ID_{ID} {
 }
 
-void Program::use() const {
+void ShaderProgram::use() const {
     glUseProgram(ID_);
 }
 
-Program::Program(std::span<std::reference_wrapper<const Shader>> shaders) {
+ShaderProgram::ShaderProgram(std::span<std::reference_wrapper<const Shader>> shaders) {
     ID_ = glCreateProgram();
 
     for (const auto& shader : shaders) {
@@ -25,7 +25,7 @@ Program::Program(std::span<std::reference_wrapper<const Shader>> shaders) {
     link();
 }
 
-Program::Program(std::initializer_list<std::reference_wrapper<const Shader>> shaders) {
+ShaderProgram::ShaderProgram(std::initializer_list<std::reference_wrapper<const Shader>> shaders) {
     ID_ = glCreateProgram();
 
     for (const auto& shader : shaders) {
@@ -36,7 +36,7 @@ Program::Program(std::initializer_list<std::reference_wrapper<const Shader>> sha
 }
 
 
-void Program::link() {
+void ShaderProgram::link() {
     glLinkProgram(ID_);
 
     GLint success;
@@ -49,21 +49,21 @@ void Program::link() {
         glGetProgramInfoLog(ID_, static_cast<GLsizei>(buffer.size()), nullptr, buffer.data());
 
         fmt::print("ERROR::SHADER::PROGRAM::LINKING_FAILED:\n{}\n", buffer.data());
-        throw std::runtime_error("Shader Program linking failed");
+        throw std::runtime_error("Shader ShaderProgram linking failed");
     }
 }
 
-void Program::attach(const Shader &shader) {
+void ShaderProgram::attach(const Shader &shader) {
     glAttachShader(ID_, shader.id());
 }
 
-Program::~Program() {
+ShaderProgram::~ShaderProgram() {
     if (ID_ != 0) {
         glDeleteProgram(ID_);
     }
 }
 
-void Program::setBool(const std::string &name, bool value) {
+void ShaderProgram::setBool(const std::string &name, bool value) {
     GLint idx = glGetUniformLocation(ID_, name.c_str());
     if (idx < 0) {
         fmt::print("WARN::SHADER::PROGRAM::UNKNOWN_UNIFORM_LOCATION: couldn't get uniform {}\n", name);
@@ -72,7 +72,7 @@ void Program::setBool(const std::string &name, bool value) {
     }
 }
 
-void Program::setInt(const std::string &name, int value) {
+void ShaderProgram::setInt(const std::string &name, int value) {
     GLint idx = glGetUniformLocation(ID_, name.c_str());
     if (idx < 0) {
         fmt::print("WARN::SHADER::PROGRAM::UNKNOWN_UNIFORM_LOCATION: couldn't get uniform {}\n", name);
@@ -81,7 +81,7 @@ void Program::setInt(const std::string &name, int value) {
     }
 }
 
-void Program::setFloat(const std::string &name, float value) {
+void ShaderProgram::setFloat(const std::string &name, float value) {
     GLint idx = glGetUniformLocation(ID_, name.c_str());
     if (idx < 0) {
         fmt::print("WARN::SHADER::PROGRAM::UNKNOWN_UNIFORM_LOCATION: couldn't get uniform {}\n", name);
@@ -90,7 +90,7 @@ void Program::setFloat(const std::string &name, float value) {
     }
 }
 
-void Program::setVec2(const std::string &name, const glm::vec2 &value) {
+void ShaderProgram::setVec2(const std::string &name, const glm::vec2 &value) {
     GLint idx = glGetUniformLocation(ID_, name.c_str());
     if (idx < 0) {
         fmt::print("WARN::SHADER::PROGRAM::UNKNOWN_UNIFORM_LOCATION: couldn't get uniform {}\n", name);
@@ -99,7 +99,7 @@ void Program::setVec2(const std::string &name, const glm::vec2 &value) {
     }
 }
 
-void Program::setVec2(const std::string &name, float x, float y) {
+void ShaderProgram::setVec2(const std::string &name, float x, float y) {
     GLint idx = glGetUniformLocation(ID_, name.c_str());
     if (idx < 0) {
         fmt::print("WARN::SHADER::PROGRAM::UNKNOWN_UNIFORM_LOCATION: couldn't get uniform {}\n", name);
@@ -108,7 +108,7 @@ void Program::setVec2(const std::string &name, float x, float y) {
     }
 }
 
-void Program::setVec3(const std::string &name, const glm::vec3 &value) {
+void ShaderProgram::setVec3(const std::string &name, const glm::vec3 &value) {
     GLint idx = glGetUniformLocation(ID_, name.c_str());
     if (idx < 0) {
         fmt::print("WARN::SHADER::PROGRAM::UNKNOWN_UNIFORM_LOCATION: couldn't get uniform {}\n", name);
@@ -117,7 +117,7 @@ void Program::setVec3(const std::string &name, const glm::vec3 &value) {
     }
 }
 
-void Program::setVec3(const std::string &name, float x, float y, float z) {
+void ShaderProgram::setVec3(const std::string &name, float x, float y, float z) {
     GLint idx = glGetUniformLocation(ID_, name.c_str());
     if (idx < 0) {
         fmt::print("WARN::SHADER::PROGRAM::UNKNOWN_UNIFORM_LOCATION: couldn't get uniform {}\n", name);
@@ -126,7 +126,7 @@ void Program::setVec3(const std::string &name, float x, float y, float z) {
     }
 }
 
-void Program::setVec4(const std::string &name, const glm::vec4 &value) {
+void ShaderProgram::setVec4(const std::string &name, const glm::vec4 &value) {
     GLint idx = glGetUniformLocation(ID_, name.c_str());
     if (idx < 0) {
         fmt::print("WARN::SHADER::PROGRAM::UNKNOWN_UNIFORM_LOCATION: couldn't get uniform {}\n", name);
@@ -135,7 +135,7 @@ void Program::setVec4(const std::string &name, const glm::vec4 &value) {
     }
 }
 
-void Program::setVec4(const std::string &name, float x, float y, float z, float w) {
+void ShaderProgram::setVec4(const std::string &name, float x, float y, float z, float w) {
     GLint idx = glGetUniformLocation(ID_, name.c_str());
     if (idx < 0) {
         fmt::print("WARN::SHADER::PROGRAM::UNKNOWN_UNIFORM_LOCATION: couldn't get uniform {}\n", name);
@@ -144,7 +144,7 @@ void Program::setVec4(const std::string &name, float x, float y, float z, float 
     }
 }
 
-void Program::setMat2(const std::string &name, const glm::mat2& mat) {
+void ShaderProgram::setMat2(const std::string &name, const glm::mat2& mat) {
     GLint idx = glGetUniformLocation(ID_, name.c_str());
     if (idx < 0) {
         fmt::print("WARN::SHADER::PROGRAM::UNKNOWN_UNIFORM_LOCATION: couldn't get uniform {}\n", name);
@@ -153,7 +153,7 @@ void Program::setMat2(const std::string &name, const glm::mat2& mat) {
     }
 }
 
-void Program::setMat3(const std::string &name, const glm::mat3 &mat) {
+void ShaderProgram::setMat3(const std::string &name, const glm::mat3 &mat) {
     GLint idx = glGetUniformLocation(ID_, name.c_str());
     if (idx < 0) {
         fmt::print("WARN::SHADER::PROGRAM::UNKNOWN_UNIFORM_LOCATION: couldn't get uniform {}\n", name);
@@ -162,7 +162,7 @@ void Program::setMat3(const std::string &name, const glm::mat3 &mat) {
     }
 }
 
-void Program::setMat4(const std::string &name, const glm::mat4 &mat) {
+void ShaderProgram::setMat4(const std::string &name, const glm::mat4 &mat) {
     GLint idx = glGetUniformLocation(ID_, name.c_str());
     if (idx < 0) {
         fmt::print("WARN::SHADER::PROGRAM::UNKNOWN_UNIFORM_LOCATION: couldn't get uniform {}\n", name);

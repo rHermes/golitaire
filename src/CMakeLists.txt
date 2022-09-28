@@ -1,5 +1,5 @@
 
-add_executable(golitaire main.cpp App.cpp App.h LTK/Shader.cpp LTK/Shader.h LTK/Program.cpp LTK/Program.h stb_image_implementation.cpp)
+add_executable(golitaire main.cpp App.cpp App.h LTK/Shader.cpp LTK/Shader.h LTK/ShaderProgram.cpp LTK/ShaderProgram.h stb_image_implementation.cpp Game.cpp Game.h LTK/Texture2D.cpp LTK/Texture2D.h LTK/ResourceManager.cpp LTK/ResourceManager.h)
 
 set_target_properties(golitaire
         PROPERTIES

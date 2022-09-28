@@ -31,12 +31,13 @@ namespace LTK {
         Shader(const Shader&) = delete;
         Shader& operator=(const Shader&) = delete;
 
+        Shader(Shader&& other) noexcept;
+        Shader& operator=(Shader&& other) noexcept;
+
         [[nodiscard]] GLuint id() const;
 
         // Load a shader from disk and compile it.
         static Shader loadFromDisk(Type type, const std::string_view& path);
-
-
 
     };
 } // LTK

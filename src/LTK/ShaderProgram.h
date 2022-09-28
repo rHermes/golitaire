@@ -13,19 +13,19 @@
 
 namespace LTK {
 
-    class Program {
+    class ShaderProgram {
     private:
         GLuint ID_{0};
 
     public:
-        explicit Program(GLuint ID);
-        ~Program();
+        explicit ShaderProgram(GLuint ID);
+        ~ShaderProgram();
 
-        Program(const Program&) = delete;
-        Program& operator=(const Program&) = delete;
+        ShaderProgram(const ShaderProgram&) = delete;
+        ShaderProgram& operator=(const ShaderProgram&) = delete;
 
-        explicit Program(std::span<std::reference_wrapper<const Shader>> shaders);
-        Program(std::initializer_list<std::reference_wrapper<const Shader>> shaders);
+        explicit ShaderProgram(std::span<std::reference_wrapper<const Shader>> shaders);
+        ShaderProgram(std::initializer_list<std::reference_wrapper<const Shader>> shaders);
 
         /// use/activate the program
         void use() const;
