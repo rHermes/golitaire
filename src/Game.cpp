@@ -29,4 +29,6 @@ void Game::render() {
 void Game::init() {
     glClearColor(1.0f, 0.0f, 0.77f, 1.0f);
     glViewport(0, 0, vpWidth, vpHeight);
+
+    resourceManager_ = std::make_unique<LTK::ResourceManager>();
 }

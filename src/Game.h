@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "LTK/ResourceManager.h"
+
 namespace gol {
 
 class Game {
@@ -11,6 +13,9 @@ private:
     // These are viewport height and width
     int vpWidth{0};
     int vpHeight{0};
+
+
+    std::unique_ptr<LTK::ResourceManager> resourceManager_;
 
 public:
     // Initialize all game resources and so on

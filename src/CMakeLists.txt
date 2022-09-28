@@ -1,5 +1,5 @@
 
-add_executable(golitaire main.cpp App.cpp App.h LTK/Shader.cpp LTK/Shader.h LTK/ShaderProgram.cpp LTK/ShaderProgram.h stb_image_implementation.cpp Game.cpp Game.h LTK/Texture2D.cpp LTK/Texture2D.h LTK/ResourceManager.cpp LTK/ResourceManager.h)
+add_executable(golitaire main.cpp App.cpp App.h LTK/Shader.cpp LTK/Shader.h LTK/ShaderProgram.cpp LTK/ShaderProgram.h stb_image_implementation.cpp Game.cpp Game.h LTK/Texture2D.cpp LTK/Texture2D.h LTK/ResourceManager.cpp LTK/ResourceManager.h LTK/Misc.h stb_image_write_implementation.cpp)
 
 set_target_properties(golitaire
         PROPERTIES
@@ -8,6 +8,8 @@ set_target_properties(golitaire
         CXX_EXTENSIONS NO
 )
 
+
+target_link_libraries(golitaire PRIVATE spdlog::spdlog)
 target_link_libraries(golitaire PRIVATE fmt::fmt)
 target_link_libraries(golitaire PRIVATE glad2)
 target_link_libraries(golitaire PRIVATE glfw)
