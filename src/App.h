@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 #include "Game.h"
+#include "glfwpp/Context.h"
+#include "glfwpp/Window.h"
 
 namespace gol {
 /// The App is responsible for window and GLFW management. This is
@@ -18,6 +20,9 @@ namespace gol {
 class App {
 
 private:
+    glfwpp::Context glfwCtx_;
+    glfwpp::Window glfwWindow_;
+
     Game game;
 
     const bool wantGlDebug = true;

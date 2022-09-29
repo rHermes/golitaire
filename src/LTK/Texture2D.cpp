@@ -130,5 +130,13 @@ void Texture2D::upload(const GLsizei width,
     }
 }
 
+void Texture2D::setFormat(const GLenum format) {
+    format_ = format;
+}
+
+void Texture2D::setInternalFormat(const GLint internalFormat) {
+    internalFormat_ = internalFormat;
+}
+
 
 

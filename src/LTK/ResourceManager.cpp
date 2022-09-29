@@ -5,6 +5,7 @@
 #include "ResourceManager.h"
 
 #include "spdlog/spdlog.h"
+#include "stb/stb_image.h"
 
 using namespace LTK;
 
@@ -89,4 +90,32 @@ ResourceManager::ResourceManager() {
     }
 
     defaultTexture_.upload(width, height, testData);
+}
+
+ResourceManager::Key ResourceManager::loadTexture(const std::filesystem::path &file, bool alpha) {
+
+    Texture2D texture;
+    int wanted_bands = 0;
+    if (alpha) {
+        texture.setFormat(GL_RGBA);
+        texture.setInternalFormat(GL_RGBA);
+        wanted_bands = 4;
+    }
+
+    int width, height, bands;
+    unsigned char* data = stbi_load(file.c_str(), &width, &height, &bands, wanted_bands);
+    if (!data) {
+        throw std::runtime_error("Couldn't load texture");
+    }
+
+    std::span dataSpan(data, width * height * bands);
+    texture.upload(width, height, dataSpan);
+    stbi_image_free(data);
+
+    const Key newKey = nextTextureKey_;
+    nextTextureKey_++;
+
+    textures_[newKey] = std::move(texture);
+
+    return newKey;
 }

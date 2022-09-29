@@ -17,7 +17,10 @@ namespace LTK {
         using Key = std::uint32_t;
 
     private:
+        Key nextProgramKey_{1};
         std::map<Key, ShaderProgram> programs_{};
+
+        Key nextTextureKey_{1};
         std::map<Key, Texture2D> textures_{};
 
         Texture2D defaultTexture_;
@@ -38,6 +41,7 @@ namespace LTK {
         [[nodiscard]] const Texture2D& getTexture(const Key& id) const;
 
 
+        [[nodiscard]] Key loadTexture(const std::filesystem::path& file, bool alpha);
     };
 
 } // LTK

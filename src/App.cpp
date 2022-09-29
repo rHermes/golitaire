@@ -8,16 +8,11 @@
 using namespace gol;
 
 
-App::App() {
-    glfwSetErrorCallback(App::glfwErrorCallback_);
-    if (!glfwInit()) {
-        throw std::runtime_error("Couldn't initialize glfw");
-    }
+App::App() : glfwCtx_(App::glfwErrorCallback_){
 }
 
 App::~App() {
     glfwDestroyWindow(window);
-    glfwTerminate();
 }
 
 void App::run() {

@@ -31,4 +31,8 @@ void Game::init() {
     glViewport(0, 0, vpWidth, vpHeight);
 
     resourceManager_ = std::make_unique<LTK::ResourceManager>();
+
+    auto awesomeFace = resourceManager_->loadTexture("data/textures/awesomeface.png", true);
+    auto wall = resourceManager_->loadTexture("data/textures/wall.jpg", false);
+    auto container = resourceManager_->loadTexture("data/textures/container.jpg", false);
 }

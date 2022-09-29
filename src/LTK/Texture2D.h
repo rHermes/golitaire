@@ -54,7 +54,13 @@ namespace LTK {
         // bound texture, or if we can clobber it.
         static Texture2D loadFromDisk(const std::filesystem::path& path, bool preserveBind = true);
 
+        // Bind texture
         void bind();
+
+        void setFormat(GLenum format);
+        void setInternalFormat(GLint internalFormat);
+
+
     };
 
 } // LTK
