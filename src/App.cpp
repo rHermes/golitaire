@@ -8,7 +8,7 @@
 using namespace gol;
 
 
-App::App() : glfwCtx_(App::glfwErrorCallback_){
+App::App() : glfwCtx_(App::glfwErrorCallback_),  glfwWindow_(true) {
 }
 
 App::~App() {
