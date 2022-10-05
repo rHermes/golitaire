@@ -21,6 +21,9 @@ namespace glfwpp {
 
         Context(Context&&) = delete;
         Context& operator=(Context&&) = delete;
+
+        void pollEvents();
+        [[nodiscard]] double getTime() const;
     };
 
 } // glfwpp

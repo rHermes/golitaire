@@ -23,3 +23,11 @@ Context::Context(GLFWerrorfun cbfun) {
 Context::~Context() {
     glfwTerminate();
 }
+
+void Context::pollEvents() {
+    glfwPollEvents();
+}
+
+double Context::getTime() const {
+    return glfwGetTime();
+}

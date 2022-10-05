@@ -3,38 +3,47 @@
 //
 
 #include "App.h"
+#include "glfwpp/WindowBuilder.h"
 #include <fmt/core.h>
+#include <spdlog/spdlog.h>
+
 
 using namespace gol;
 
 
-App::App() : glfwCtx_(App::glfwErrorCallback_),  glfwWindow_(true) {
+App::App() : glfwCtx_(App::glfwErrorCallback_) {
+    glfwWindow_ = std::make_unique<glfwpp::Window>(glfwpp::WindowBuilder()
+            .setDebug(wantGlDebug)
+            .build());
+
+    if (wantGlDebug) {
+        glfwWindow_->enableGLDebug(App::glKHRDebugOutputCallback, this);
+    }
+
+    glfwWindow_->setWindowUserPointer(this);
+    glfwWindow_->setFramebufferCallback(App::glfwFramebufferSizeCallback_);
+    glfwWindow_->setKeyCallback(App::glfwKeyCallback_);
 }
 
-App::~App() {
-    glfwDestroyWindow(window);
-}
 
 void App::run() {
-    createWindow();
-
     game.init();
 
-    const double startTime = glfwGetTime();
+    const double startTime = glfwCtx_.getTime();
     double prevTime = startTime;
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindow_->windowShouldClose()) {
         // Update time keeping variables.
         const double currentTime = glfwGetTime();
         const double deltaTime = currentTime - prevTime;
         prevTime = currentTime;
 
-        glfwPollEvents();
+        glfwCtx_.pollEvents();
 
         game.processInput(deltaTime);
         game.update(deltaTime);
         game.render();
 
-        glfwSwapBuffers(window);
+        glfwWindow_->swapBuffers();
     }
 }
 
@@ -42,7 +51,7 @@ void App::handleKeyInput(int key, int scancode, int action, int mods) {
     // fmt::print("We got a key input event\n");
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
+        glfwWindow_->setWindowShouldClose(true);
     }
 
     if (glad_glPolygonModeNV) {
@@ -58,60 +67,9 @@ void App::handleKeyInput(int key, int scancode, int action, int mods) {
 
 }
 
-void App::createWindow() {
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-
-    glfwWindowHint(GLFW_CONTEXT_DEBUG, wantGlDebug);
-
-    window = glfwCreateWindow(windowWidth, windowHeight, "Golitaire", nullptr, nullptr);
-    if (!window) {
-        throw std::runtime_error("Couldn't create window");
-    }
-
-    glfwSetWindowUserPointer(window, this);
-
-
-    glfwMakeContextCurrent(window);
-
-    int version = gladLoadGLES2(glfwGetProcAddress);
-    if (version == 0) {
-        fmt::print("Failed to initialize OpenGL ES\n");
-        throw std::runtime_error("Failed to initialize OpenGL ES");
-    }
-
-    fmt::print("Loaded OpenGL ES: {}.{}\n", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
-
-    if (wantGlDebug) {
-        useGlDebug = GLAD_GL_KHR_debug;
-        if (useGlDebug) {
-            fmt::print("KHR debug is supported!\n");
-
-            glEnable(GL_DEBUG_OUTPUT_KHR);
-            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
-
-            glDebugMessageCallbackKHR(App::glKHRDebugOutputCallback, this);
-            glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-        } else {
-            fmt::print("GL debug wanted, but not supported\n");
-        }
-    }
-
-    glfwSwapInterval(1);
-
-    game.resizeViewport(windowWidth, windowHeight);
-
-    glfwSetFramebufferSizeCallback(window, App::glfwFramebufferSizeCallback_);
-    glfwSetKeyCallback(window, App::glfwKeyCallback_);
-}
-
-
-
-
 
 void App::handleFramebufferSizeEvent(int width, int height) {
-    fmt::print("The framebuffer has been resized {}x{}!\n", width, height);
+    spdlog::debug("The framebuffer has been resized {}x{}!", width, height);
     windowWidth = width;
     windowHeight = height;
 
@@ -121,7 +79,7 @@ void App::handleFramebufferSizeEvent(int width, int height) {
 void App::glfwKeyCallback_(GLFWwindow *window, int key, int scancode, int action, int mods) {
     App *app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
     if (!app) {
-        fmt::print("Window app pointer is null!\n");
+        spdlog::error("Window app pointer is null, cannot execute key callback!");
         return;
     }
 
@@ -131,7 +89,7 @@ void App::glfwKeyCallback_(GLFWwindow *window, int key, int scancode, int action
 void App::glfwFramebufferSizeCallback_(GLFWwindow *window, int width, int height) {
     App *app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
     if (!app) {
-        fmt::print("Window app pointer is null!\n");
+        spdlog::error("Window app pointer is null, cannot execute buffersize callback!");
         return;
     }
 
@@ -139,14 +97,14 @@ void App::glfwFramebufferSizeCallback_(GLFWwindow *window, int width, int height
 }
 
 void App::glfwErrorCallback_(int code, const char *description) {
-    fmt::print("We got an error glfw_cpp: {} {}\n", code, description);
+    spdlog::error("We got an error from glfw: {} {}", code, description);
 }
 
 void App::glKHRDebugOutputCallback(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length,
                                    const char *message, const void *userParam) {
     const App *app = reinterpret_cast<const App*>(userParam);
     if (!app) {
-        fmt::print("app pointer is null!\n");
+        spdlog::error("Window app pointer is null, cannot execute KHR debug!");
         return;
     }
 

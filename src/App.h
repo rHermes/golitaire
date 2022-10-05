@@ -21,7 +21,7 @@ class App {
 
 private:
     glfwpp::Context glfwCtx_;
-    glfwpp::Window glfwWindow_;
+    std::unique_ptr<glfwpp::Window> glfwWindow_;
 
     Game game;
 
@@ -47,14 +47,9 @@ private:
     int windowWidth{640};
     int windowHeight{480};
 
-    GLFWwindow* window{nullptr};
-
-    void createWindow();
-
 public:
 
     App();
-    ~App();
 
     void run();
 };
