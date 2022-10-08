@@ -112,10 +112,30 @@ ResourceManager::Key ResourceManager::loadTexture(const std::filesystem::path &f
     texture.upload(width, height, dataSpan);
     stbi_image_free(data);
 
-    const Key newKey = nextTextureKey_;
-    nextTextureKey_++;
-
-    textures_[newKey] = std::move(texture);
+    const Key newKey = getTextureKey();
+    textures_.insert_or_assign(newKey, std::move(texture));
 
     return newKey;
+}
+
+ResourceManager::Key
+ResourceManager::loadShaderProgram(const std::filesystem::path &vertexFile, const std::filesystem::path &fragFile) {
+    Shader vshader = Shader::loadFromDisk(Shader::Type::Vertex, vertexFile.c_str());
+    Shader fshader = Shader::loadFromDisk(Shader::Type::Fragment, fragFile.c_str());
+
+    // std::vector<std::reference_wrapper<const Shader>> shaders{std::cref(vshader), std::cref(fshader)};
+    ShaderProgram prog{std::cref(vshader), std::cref(fshader)};
+
+    const Key newKey = getProgramKey();
+    programs_.insert_or_assign(newKey, std::move(prog));
+
+    return newKey;
+}
+
+ResourceManager::Key ResourceManager::getProgramKey() {
+    return nextProgramKey_++;
+}
+
+ResourceManager::Key ResourceManager::getTextureKey() {
+    return nextTextureKey_++;
 }

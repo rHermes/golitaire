@@ -25,6 +25,13 @@ namespace LTK {
 
         Texture2D defaultTexture_;
 
+
+        // Return an unused shader key
+        [[nodiscard]] Key getProgramKey();
+
+        // Return an unused texture key
+        [[nodiscard]] Key getTextureKey();
+
     public:
         ResourceManager();
 
@@ -42,6 +49,8 @@ namespace LTK {
 
 
         [[nodiscard]] Key loadTexture(const std::filesystem::path& file, bool alpha);
+
+        [[nodiscard]] Key loadShaderProgram(const std::filesystem::path& vertexFile, const std::filesystem::path& fragFile);
     };
 
 } // LTK

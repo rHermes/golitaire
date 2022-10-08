@@ -170,3 +170,13 @@ void ShaderProgram::setMat4(const std::string &name, const glm::mat4 &mat) {
         glUniformMatrix4fv(idx, 1, GL_FALSE, glm::value_ptr(mat));
     }
 }
+
+
+ShaderProgram::ShaderProgram(ShaderProgram &&other) noexcept {
+    *this = std::move(other);
+}
+
+ShaderProgram& ShaderProgram::operator=(ShaderProgram &&other) noexcept {
+    ID_ = std::exchange(other.ID_, 0);
+    return *this;
+}

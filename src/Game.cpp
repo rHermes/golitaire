@@ -35,4 +35,8 @@ void Game::init() {
     auto awesomeFace = resourceManager_->loadTexture("data/textures/awesomeface.png", true);
     auto wall = resourceManager_->loadTexture("data/textures/wall.jpg", false);
     auto container = resourceManager_->loadTexture("data/textures/container.jpg", false);
+
+    auto defaultProg = resourceManager_->loadShaderProgram(
+            "data/shaders/default.vert", "data/shaders/default.frag"
+            );
 }

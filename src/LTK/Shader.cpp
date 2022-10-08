@@ -71,7 +71,7 @@ Shader::Shader(Shader &&other) noexcept {
     *this = std::move(other);
 }
 
-Shader &Shader::operator=(Shader &&other) noexcept {
+Shader& Shader::operator=(Shader &&other) noexcept {
     ID_ = std::exchange(other.ID_, 0);
     return *this;
 }
