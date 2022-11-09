@@ -7,11 +7,12 @@
 #include <glad/gles2.h>
 
 namespace LTK {
-    enum class ImageFormat {
+    enum class ImageFormat : GLenum {
         RGB = GL_RGB,
+        RGBA = GL_RGBA,
     };
 
-    enum class ImageWrap {
+    enum class ImageWrap : GLenum {
         Repeat = GL_REPEAT,
         MirrorRepeat = GL_MIRRORED_REPEAT,
         ClampToEdge = GL_CLAMP_TO_EDGE,

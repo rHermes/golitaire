@@ -21,7 +21,7 @@ namespace LTK {
         GLsizei height_{0};
 
         // Texture format
-        GLenum format_{GL_RGB};
+        ImageFormat format_{ImageFormat::RGB};
         GLint internalFormat_{GL_RGB};
 
         // wrap operations
@@ -50,14 +50,10 @@ namespace LTK {
         // Upload the given data.
         void upload(GLsizei width, GLsizei height, std::span<GLubyte> data, bool preserveBind = true);
 
-        // preserveBind indicates if we should restore the currently
-        // bound texture, or if we can clobber it.
-        static Texture2D loadFromDisk(const std::filesystem::path& path, bool preserveBind = true);
-
         // Bind texture
         void bind();
 
-        void setFormat(GLenum format);
+        void setFormat(ImageFormat format);
         void setInternalFormat(GLint internalFormat);
 
 

@@ -95,13 +95,15 @@ ResourceManager::ResourceManager() {
 ResourceManager::Key ResourceManager::loadTexture(const std::filesystem::path &file, bool alpha) {
 
     Texture2D texture;
-    int wanted_bands = 0;
+
+    int wanted_bands = 3;
     if (alpha) {
-        texture.setFormat(GL_RGBA);
+        texture.setFormat(ImageFormat::RGBA);
         texture.setInternalFormat(GL_RGBA);
         wanted_bands = 4;
     }
 
+    stbi_set_flip_vertically_on_load(true);
     int width, height, bands;
     unsigned char* data = stbi_load(file.c_str(), &width, &height, &bands, wanted_bands);
     if (!data) {
@@ -112,8 +114,11 @@ ResourceManager::Key ResourceManager::loadTexture(const std::filesystem::path &f
     texture.upload(width, height, dataSpan);
     stbi_image_free(data);
 
+    glObjectLabelKHR(GL_TEXTURE, texture.id(), file.string().size(), file.c_str());
+
     const Key newKey = getTextureKey();
     textures_.insert_or_assign(newKey, std::move(texture));
+
 
     return newKey;
 }
@@ -123,7 +128,6 @@ ResourceManager::loadShaderProgram(const std::filesystem::path &vertexFile, cons
     Shader vshader = Shader::loadFromDisk(Shader::Type::Vertex, vertexFile.c_str());
     Shader fshader = Shader::loadFromDisk(Shader::Type::Fragment, fragFile.c_str());
 
-    // std::vector<std::reference_wrapper<const Shader>> shaders{std::cref(vshader), std::cref(fshader)};
     ShaderProgram prog{std::cref(vshader), std::cref(fshader)};
 
     const Key newKey = getProgramKey();
@@ -138,4 +142,12 @@ ResourceManager::Key ResourceManager::getProgramKey() {
 
 ResourceManager::Key ResourceManager::getTextureKey() {
     return nextTextureKey_++;
+}
+
+void ResourceManager::removeTexture(const ResourceManager::Key &id) {
+    textures_.erase(id);
+}
+
+void ResourceManager::removeProgram(const ResourceManager::Key &id) {
+    programs_.erase(id);
 }

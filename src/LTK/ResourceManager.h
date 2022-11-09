@@ -47,6 +47,8 @@ namespace LTK {
         [[nodiscard]] Texture2D& getTexture(const Key& id);
         [[nodiscard]] const Texture2D& getTexture(const Key& id) const;
 
+        void removeTexture(const Key& id);
+        void removeProgram(const Key& id);
 
         [[nodiscard]] Key loadTexture(const std::filesystem::path& file, bool alpha);
 

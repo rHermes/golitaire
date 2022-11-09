@@ -77,6 +77,7 @@ Window::Window(Window &&other) noexcept {
 
 Window &Window::operator=(Window &&other) noexcept {
     window_ = std::exchange(other.window_, nullptr);
+    return *this;
 }
 
 

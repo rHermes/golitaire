@@ -5,6 +5,7 @@
 #pragma once
 
 #include "LTK/ResourceManager.h"
+#include "SceneRenderer.h"
 
 namespace gol {
 
@@ -15,8 +16,10 @@ private:
     int vpHeight{0};
 
 
-    std::unique_ptr<LTK::ResourceManager> resourceManager_;
+    std::shared_ptr<LTK::ResourceManager> resourceManager_;
+    std::unique_ptr<SceneRenderer> sceneRenderer_;
 
+    std::shared_ptr<Card> singleCard_;
 public:
     // Initialize all game resources and so on
     void init();
