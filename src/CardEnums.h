@@ -6,6 +6,7 @@
 
 #include <utility>
 #include "utils.h"
+#include <stdexcept>
 
 namespace gol {
     enum class CardSuite {

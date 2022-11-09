@@ -27,12 +27,18 @@ void Card::updateTransform() {
     transform_ = glm::translate(transform_, position_);
 
     // This is what I currently have, might not be correct.
+    /*
     glm::quat qt;
     qt = glm::rotate(qt, rotation_.x, {1.0f, 0.0f, 0.0f});
     qt = glm::rotate(qt, rotation_.y, {0.0f, 1.0f, 0.0f});
     qt = glm::rotate(qt, rotation_.z, {0.0f, 0.0f, 1.0f});
 
     transform_ *= static_cast<glm::mat4>(qt);
+     */
+    transform_ = glm::rotate(transform_, rotation_.x, {1.0f, 0.0f, 0.0f});
+    transform_ = glm::rotate(transform_, rotation_.y, {0.0f, 1.0f, 0.0f});
+    transform_ = glm::rotate(transform_, rotation_.z, {0.0f, 0.0f, 1.0f});
+
     transform_ = glm::scale(transform_, glm::vec3(scale_));
 
     transform_dirty_ = false;

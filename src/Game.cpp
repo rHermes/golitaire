@@ -4,6 +4,7 @@
 
 #include "Game.h"
 
+#include <numbers>
 #include <glad/gles2.h>
 
 using namespace gol;
@@ -21,7 +22,7 @@ void Game::processInput(const double dt) {
 }
 
 void Game::update(const double dt) {
-    const double furtherOn = dt * (std::numbers::pi/30.0);
+    const double furtherOn = dt * ((2.0*std::numbers::pi)/10);
     singleCard_->rotateY(static_cast<float>(furtherOn));
 }
 

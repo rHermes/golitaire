@@ -6,6 +6,7 @@
 
 #include "spdlog/spdlog.h"
 #include "stb/stb_image.h"
+#include <array>
 
 using namespace LTK;
 
@@ -105,7 +106,7 @@ ResourceManager::Key ResourceManager::loadTexture(const std::filesystem::path &f
 
     stbi_set_flip_vertically_on_load(true);
     int width, height, bands;
-    unsigned char* data = stbi_load(file.c_str(), &width, &height, &bands, wanted_bands);
+    unsigned char* data = stbi_load(file.string().c_str(), &width, &height, &bands, wanted_bands);
     if (!data) {
         throw std::runtime_error("Couldn't load texture");
     }
@@ -114,7 +115,7 @@ ResourceManager::Key ResourceManager::loadTexture(const std::filesystem::path &f
     texture.upload(width, height, dataSpan);
     stbi_image_free(data);
 
-    glObjectLabelKHR(GL_TEXTURE, texture.id(), file.string().size(), file.c_str());
+    glObjectLabelKHR(GL_TEXTURE, texture.id(), file.string().size(), file.string().c_str());
 
     const Key newKey = getTextureKey();
     textures_.insert_or_assign(newKey, std::move(texture));
@@ -125,8 +126,8 @@ ResourceManager::Key ResourceManager::loadTexture(const std::filesystem::path &f
 
 ResourceManager::Key
 ResourceManager::loadShaderProgram(const std::filesystem::path &vertexFile, const std::filesystem::path &fragFile) {
-    Shader vshader = Shader::loadFromDisk(Shader::Type::Vertex, vertexFile.c_str());
-    Shader fshader = Shader::loadFromDisk(Shader::Type::Fragment, fragFile.c_str());
+    Shader vshader = Shader::loadFromDisk(Shader::Type::Vertex, vertexFile.string().c_str());
+    Shader fshader = Shader::loadFromDisk(Shader::Type::Fragment, fragFile.string().c_str());
 
     ShaderProgram prog{std::cref(vshader), std::cref(fshader)};
 
