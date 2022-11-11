@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <vector>
 #include "LTK/ResourceManager.h"
 #include "SceneRenderer.h"
 
@@ -19,7 +20,8 @@ private:
     std::shared_ptr<LTK::ResourceManager> resourceManager_;
     std::unique_ptr<SceneRenderer> sceneRenderer_;
 
-    std::shared_ptr<Card> singleCard_;
+    // std::shared_ptr<Card> singleCard_;
+    std::vector<std::shared_ptr<Card>> deck_;
 public:
     // Initialize all game resources and so on
     void init();

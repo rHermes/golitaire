@@ -49,6 +49,8 @@ public:
     [[nodiscard]] CardSuite getSuite() const;
     [[nodiscard]] CardMember getMember() const;
     [[nodiscard]] CardType getType() const;
+
+    [[nodiscard]] const glm::vec3& getPosition() const;
 };
 
 } // gol

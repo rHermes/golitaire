@@ -13,12 +13,15 @@ using namespace gol;
 
 App::App() : glfwCtx_(App::glfwErrorCallback_) {
     glfwWindow_ = std::make_unique<glfwpp::Window>(glfwpp::WindowBuilder()
+            .setWindowSize(windowWidth, windowHeight)
             .setDebug(wantGlDebug)
             .build());
 
     if (wantGlDebug) {
         glfwWindow_->enableGLDebug(App::glKHRDebugOutputCallback, this);
     }
+
+    game.resizeViewport(windowWidth, windowHeight);
 
     glfwWindow_->setWindowUserPointer(this);
     glfwWindow_->setFramebufferCallback(App::glfwFramebufferSizeCallback_);

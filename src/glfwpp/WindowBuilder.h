@@ -18,6 +18,9 @@ namespace glfwpp {
     public:
 
         WindowBuilder& setDebug(bool enabled);
+        WindowBuilder& setWidth(int width);
+        WindowBuilder& setHeight(int height);
+        WindowBuilder& setWindowSize(int width, int height);
 
 
         [[nodiscard]] Window build();

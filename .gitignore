@@ -1,5 +1,6 @@
 .idea
 cmake-build-*
 out
+.vs
 *.spv
 CMakeLists.txt.user

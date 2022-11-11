@@ -23,3 +23,19 @@ Window WindowBuilder::build() {
 
     return Window(window);
 }
+
+WindowBuilder &WindowBuilder::setWidth(int width) {
+    width_ = width;
+    return *this;
+}
+
+WindowBuilder &WindowBuilder::setHeight(int height) {
+    height_ = height;
+    return *this;
+}
+
+WindowBuilder &WindowBuilder::setWindowSize(const int width, const int height) {
+    width_ = width;
+    height_ = height;
+    return *this;
+}
