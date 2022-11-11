@@ -17,8 +17,8 @@ void Game::resizeViewport(int width, int height) {
 
 }
 
-void Game::processInput(const double dt) {
 
+void Game::processInput(const double dt) {
 }
 
 void Game::update(const double dt) {

@@ -8,6 +8,11 @@ set_target_properties(golitaire
         CXX_EXTENSIONS NO
 )
 
+if(MSVC)
+    target_compile_options(golitaire PRIVATE /W4 /WX)
+else()
+    target_compile_options(golitaire PRIVATE -Wall -Wextra -Wpedantic -Werror -Wno-unused-parameter)
+endif()
 
 target_link_libraries(golitaire PRIVATE spdlog::spdlog)
 target_link_libraries(golitaire PRIVATE fmt::fmt)
