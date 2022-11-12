@@ -22,6 +22,7 @@ private:
 
     // std::shared_ptr<Card> singleCard_;
     std::vector<std::shared_ptr<Card>> deck_;
+
 public:
     // Initialize all game resources and so on
     void init();
@@ -39,6 +40,10 @@ public:
     // Render. This is a static function, which doesn't modify any of the classes state, except for
     // things having to do with rendering.
     void render();
+
+
+    // This redeals the hands
+    void restartGame();
 };
 
 } // gol

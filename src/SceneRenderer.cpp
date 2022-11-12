@@ -6,8 +6,7 @@
 #include "SceneRenderer.h"
 #include "LTK/Vertex.h"
 #include "LTK/Buffer.h"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/ext/matrix_clip_space.hpp"
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 
 using namespace gol;
@@ -68,10 +67,10 @@ SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
 
     const std::vector<LTK::Vertex> backgroundVertices = {
             // Front face
-            {{-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // Front face, Upper left
-            {{ 1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // Front face, Upper right
-            {{ 1.0f,-1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // Front face, Lower right
-            {{-1.0f,-1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}, // Front face, Lower left
+            {{-1.0f, 1.0f, 0.9999f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // Front face, Upper left
+            {{ 1.0f, 1.0f, 0.9999f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // Front face, Upper right
+            {{ 1.0f,-1.0f, 0.9999f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // Front face, Lower right
+            {{-1.0f,-1.0f, 0.9999f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}, // Front face, Lower left
     };
 
     const std::vector<glm::uvec3> backgroundIndices = {
@@ -143,14 +142,17 @@ SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
 
 void SceneRenderer::render(const int windowWidth, const int windowHeight) {
     // Quick hacks
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::scale(model, {0.05f, 0.05f, 0.05f});
+    // glm::mat4 model = glm::mat4(1.0f);
+    // model = glm::scale(model, {0.05f, 0.05f, 0.05f});
 
+    const glm::vec3 cameraPos{0.0f, 0.0f, 10.0f};
     glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -10.0f));
+    // Eye, center, up
+    view = glm::lookAt(cameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), static_cast<float>(windowWidth)/static_cast<float>(windowHeight), 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(45.0f), static_cast<float>(windowWidth)/static_cast<float>(windowHeight), 0.1f, 9.0f);
+    //projection = glm::ortho(0.0f, static_cast<float>(windowWidth), 0.0f, static_cast<float>(windowHeight), 0.1f, 100.0f);
 
     const glm::mat4 vp = projection * view;
 
@@ -159,29 +161,35 @@ void SceneRenderer::render(const int windowWidth, const int windowHeight) {
         backgroundVAO_.bind();
         resManager_->getTexture(backgroundTexture_).bind();
         resManager_->getProgram(backgroundShader_).use();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     }
 
     // Draw each card.
+    auto &prog = resManager_->getProgram(cardShader_);
+    prog.use();
 
+    // TODO(rHermes): Don't do this at runtime, but rather once the cards have been updated
+    std::multimap<float, decltype(cards_)::value_type> cardsSorted;
     for (const auto& card : cards_) {
+        float distance = glm::length(cameraPos - card->getPosition());
+        cardsSorted.emplace(distance, card);
+    }
+
+    // We now draw them in reverse order
+    for (auto it = std::rbegin(cardsSorted); it != std::rend(cardsSorted); ++it) {
+        const auto& card = it->second;
+
         const glm::mat4 mvp = vp * card->getTransform();
-
-
-        auto &prog = resManager_->getProgram(cardShader_);
-        prog.use();
         prog.setMat4("mvp", mvp);
 
 
         cardFrontVAO_.bind();
         resManager_->getTexture(cardTextures_[card->getType()]).bind();
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         cardBackVAO_.bind();
         resManager_->getTexture(cardBack_).bind();
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     }
 }
 
