@@ -12,12 +12,15 @@
 using namespace gol;
 
 SceneRenderer::~SceneRenderer() {
+    resManager_->removeTexture(backgroundTexture_);
     resManager_->removeTexture(cardBack_);
 
     for (const auto& texKey : cardTextures_) {
         resManager_->removeTexture(texKey.second);
     }
+
     resManager_->removeProgram(cardShader_);
+    resManager_->removeProgram(backgroundShader_);
 }
 
 SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) : resManager_{std::move(resManager)} {
@@ -83,10 +86,10 @@ SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
     // We need 2 of them, as we need to have the texture coordinate the other way on the back of the card
     const std::vector<LTK::Vertex> cardFrontVertices = {
             // Front face
-            {{-32.0f,  44.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // Front face, Upper left
-            {{ 32.0f,  44.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // Front face, Upper right
-            {{ 32.0f, -44.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // Front face, Lower right
-            {{-32.0f, -44.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}, // Front face, Lower left
+            {{-0.5,  0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // Front face, Upper left
+            {{ 0.5,  0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // Front face, Upper right
+            {{ 0.5, -0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // Front face, Lower right
+            {{-0.5, -0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}, // Front face, Lower left
     };
 
     const std::vector<glm::uvec3> cardFrontIndices = {
@@ -94,14 +97,22 @@ SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
             {2, 3, 0}, // Second triangle
     };
 
-
     const std::vector<LTK::Vertex> cardBackVertices = {
             // BackFace
-            {{-32.0f,  44.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // Back Face Upper left
-            {{ 32.0f,  44.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // Back Face, Upper right
-            {{ 32.0f, -44.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}, // Back Face, Lower right
-            {{-32.0f, -44.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // Back Face, Lower left
+            {{-0.5,  0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // Back Face Upper left
+            {{ 0.5,  0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // Back Face, Upper right
+            {{ 0.5, -0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}, // Back Face, Lower right
+            {{-0.5, -0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // Back Face, Lower left
     };
+    /*
+    const std::vector<LTK::Vertex> cardBackVertices = {
+            // BackFace
+            {{-cardWidth_/2,  cardHeight_/2, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // Back Face Upper left
+            {{ cardWidth_/2,  cardHeight_/2, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // Back Face, Upper right
+            {{ cardWidth_/2, -cardHeight_/2, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}, // Back Face, Lower right
+            {{-cardWidth_/2, -cardHeight_/2, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // Back Face, Lower left
+    };
+     */
 
     const std::vector<glm::uvec3> cardBackIndices = {
             {1, 0, 3}, // First triangle
@@ -140,19 +151,39 @@ SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
     cardBackVAO_.unbind();
 }
 
-void SceneRenderer::render(const int windowWidth, const int windowHeight) {
-    // Quick hacks
-    // glm::mat4 model = glm::mat4(1.0f);
-    // model = glm::scale(model, {0.05f, 0.05f, 0.05f});
+void SceneRenderer::render(const int windowWidth, const int windowHeight, const float cardsWide, const float cardsTall) {
+    const float fWW = static_cast<float>(windowWidth);
+    const float fWH = static_cast<float>(windowHeight);
+
+    const float boardBuffer = 15;
+
+    const auto boardWidth = cardWidth_ * cardsWide + 2*boardBuffer;
+    const auto boardHeight = cardHeight_ * cardsTall +2*boardBuffer;
+
+    const auto boardScale = std::min(fWW/boardWidth, fWH/boardHeight);
+
+    const auto boardWidthPx = boardScale * boardWidth;
+    const auto boardHeightPx = boardScale * boardHeight;
+
+    glm::mat4 cardWorld = glm::mat4(1.0f);
+
+    // Now move it to the center of the screen
+    cardWorld = glm::translate(cardWorld, {(fWW - boardWidthPx)/2, (fWH - boardHeightPx)/2, 0});
+
+    // Apply the buffer
+    cardWorld = glm::translate(cardWorld, {boardBuffer, boardBuffer, 0});
+    cardWorld = glm::scale(cardWorld, {boardScale, boardScale, 0});
+    cardWorld = glm::translate(cardWorld, {cardWidth_/2, cardHeight_/2, 0});
+    cardWorld = glm::scale(cardWorld, glm::vec3(cardWidth_, cardHeight_,0));
 
     const glm::vec3 cameraPos{0.0f, 0.0f, 10.0f};
     glm::mat4 view = glm::mat4(1.0f);
+
     // Eye, center, up
     view = glm::lookAt(cameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), static_cast<float>(windowWidth)/static_cast<float>(windowHeight), 0.1f, 9.0f);
-    //projection = glm::ortho(0.0f, static_cast<float>(windowWidth), 0.0f, static_cast<float>(windowHeight), 0.1f, 100.0f);
+    projection = glm::ortho(0.0f, static_cast<float>(windowWidth), 0.0f, static_cast<float>(windowHeight), 0.1f, 100.0f);
 
     const glm::mat4 vp = projection * view;
 
@@ -171,15 +202,15 @@ void SceneRenderer::render(const int windowWidth, const int windowHeight) {
     // TODO(rHermes): Don't do this at runtime, but rather once the cards have been updated
     std::multimap<float, decltype(cards_)::value_type> cardsSorted;
     for (const auto& card : cards_) {
-        float distance = glm::length(cameraPos - card->getPosition());
-        cardsSorted.emplace(distance, card);
+        cardsSorted.emplace(-card->getPosition().z, card);
     }
 
     // We now draw them in reverse order
     for (auto it = std::rbegin(cardsSorted); it != std::rend(cardsSorted); ++it) {
         const auto& card = it->second;
 
-        const glm::mat4 mvp = vp * card->getTransform();
+        // We move the things to the middle of the screen
+        const glm::mat4 mvp = vp * cardWorld * card->getTransform();
         prog.setMat4("mvp", mvp);
 
 

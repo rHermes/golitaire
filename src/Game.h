@@ -13,9 +13,11 @@ namespace gol {
 class Game {
 private:
     // These are viewport height and width
-    int vpWidth{0};
-    int vpHeight{0};
+    int vpWidth{1};
+    int vpHeight{1};
 
+    float cardsWide_{9.0f};
+    float cardsTall_{4.7f};
 
     std::shared_ptr<LTK::ResourceManager> resourceManager_;
     std::unique_ptr<SceneRenderer> sceneRenderer_;

@@ -17,6 +17,8 @@ void Game::resizeViewport(int width, int height) {
     glViewport(0, 0, width, height);
 
 
+    // We also need to reposition the cards.
+
 }
 
 
@@ -30,7 +32,7 @@ void Game::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-    sceneRenderer_->render(vpWidth, vpHeight);
+    sceneRenderer_->render(vpWidth, vpHeight, cardsWide_, cardsTall_);
 }
 
 void Game::init() {
@@ -38,7 +40,7 @@ void Game::init() {
     glViewport(0, 0, vpWidth, vpHeight);
 
     // We need depth testing
-    glEnable(GL_DEPTH_TEST);
+    // glEnable(GL_DEPTH_TEST);
 
     // We run this once here, but we should do it somewhere else?
     glEnable(GL_BLEND);
@@ -65,7 +67,6 @@ void Game::init() {
         const auto memberIdx = i % members.size();
 
         auto card = std::make_shared<Card>(suits[suiteIdx], members[memberIdx]);
-        card->setScale(0.015f);
 
         deck_.push_back(card);
         sceneRenderer_->addCard(card);
@@ -74,19 +75,20 @@ void Game::init() {
     restartGame();
 }
 
+
 void Game::restartGame() {
-    // First we shuffel the deck
+    // First we shuffle the deck
     std::random_device rd;
     std::mt19937 g(rd());
 
     std::shuffle(deck_.begin(), deck_.end(), g);
 
-    const glm::vec3 relationPos{-5, 2.3, 2};
-    const glm::vec3 rowRelPos = relationPos + glm::vec3{0, -1.6, 0};
+    const glm::vec3 relationPos{0, cardsTall_-1, 10};
+    const glm::vec3 rowRelPos = relationPos + glm::vec3(0, -1.2, 0);
 
-    const glm::vec3 onePileRight{1.5, 0, 0};
-    const glm::vec3 oneCardDown{0, -0.35, 0};
-    const glm::vec3 oneLevelForward{0.0f, 0.0f, 0.04f};
+    const glm::vec3 onePileRight{1 + (cardsWide_ - 7)/6, 0, 0};
+    const glm::vec3 oneCardDown{0, -0.25, 0};
+    const glm::vec3 oneLevelForward{0.0f, 0.0f, 1};
 
     // const float distVert = 0.1;
 

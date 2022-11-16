@@ -18,6 +18,10 @@ namespace gol {
     private:
         using PKey = LTK::ResourceManager::Key;
 
+        static constexpr float cardWidth_ = 64.0f;
+        static constexpr float cardHeight_ = 89.0f;
+
+
         std::shared_ptr<LTK::ResourceManager> resManager_;
 
         PKey backgroundShader_{0};
@@ -58,7 +62,7 @@ namespace gol {
         void addCard(std::shared_ptr<Card> card);
         void removeCard(const std::shared_ptr<Card>& card);
 
-        void render(int windowWidth, int windowHeight);
+        void render(int windowWidth, int windowHeight, float cardsWide, float cardsTall);
     };
 
 } // gol
