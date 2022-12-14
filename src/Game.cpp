@@ -18,7 +18,6 @@ void Game::resizeViewport(int width, int height) {
 
 
     // We also need to reposition the cards.
-
 }
 
 
@@ -81,15 +80,13 @@ void Game::restartGame() {
     std::random_device rd;
     std::mt19937 g(rd());
 
+    // We move all card from the piles into the deck.
+    /*
+    for (auto& pile : piles_) {
+    }
+     */
+
     std::shuffle(deck_.begin(), deck_.end(), g);
-
-    const glm::vec3 relationPos{0, cardsTall_-1, 10};
-    const glm::vec3 rowRelPos = relationPos + glm::vec3(0, -1.2, 0);
-
-    const glm::vec3 onePileRight{1 + (cardsWide_ - 7)/6, 0, 0};
-    const glm::vec3 oneCardDown{0, -0.25, 0};
-    const glm::vec3 oneLevelForward{0.0f, 0.0f, 1};
-
     // const float distVert = 0.1;
 
     auto it = std::begin(deck_);
@@ -98,10 +95,7 @@ void Game::restartGame() {
             auto& card = *it;
             it++;
 
-            if (pile != row)
-                card->setRotation(0, glm::radians(180.0f), 0);
-            else
-                card->setRotation(0, 0, 0);
+            card->setFaceup(pile == row);
 
             const auto pos = rowRelPos + static_cast<float>(pile)*onePileRight +
                     static_cast<float>(row)*(oneCardDown + oneLevelForward);
@@ -116,14 +110,14 @@ void Game::restartGame() {
         it++;
 
         card->setPosition(relationPos + onePileRight);
-        card->setRotation(0, 0, 0);
+        card->setFaceup(true);
     }
 
     // The remaining cards are moved to the pile and swapped.
     for (; it != std::end(deck_); ++it) {
         auto& card = *it;
 
-        card->setRotation(0, glm::radians(180.0f), 0);
+        card->setFaceup(false);
         card->setPosition(relationPos);
     }
 }

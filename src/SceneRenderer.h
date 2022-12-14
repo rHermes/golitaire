@@ -18,8 +18,8 @@ namespace gol {
     private:
         using PKey = LTK::ResourceManager::Key;
 
-        static constexpr float cardWidth_ = 64.0f;
-        static constexpr float cardHeight_ = 89.0f;
+        static constexpr float cardWidth_ = 63.0f;
+        static constexpr float cardHeight_ = 88.0f;
 
 
         std::shared_ptr<LTK::ResourceManager> resManager_;

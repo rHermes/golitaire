@@ -30,7 +30,7 @@ SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
 
     cardShader_ = resManager_->loadShaderProgram("data/shaders/default.vert", "data/shaders/default.frag");
 
-    const std::filesystem::path base = "data/textures/cards/base";
+    const std::filesystem::path base = "data/textures/cards/vector-cards";
     // We need to init things here
     std::map<std::string, CardSuite> nameToSuite = {
             {"club", CardSuite::Clubs},

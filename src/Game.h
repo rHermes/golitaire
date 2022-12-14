@@ -7,6 +7,7 @@
 #include <vector>
 #include "LTK/ResourceManager.h"
 #include "SceneRenderer.h"
+#include "Pile.h"
 
 namespace gol {
 
@@ -16,14 +17,23 @@ private:
     int vpWidth{1};
     int vpHeight{1};
 
-    float cardsWide_{9.0f};
-    float cardsTall_{4.7f};
+    const float cardsWide_{9.0f};
+    const float cardsTall_{4.7f};
+
+    const glm::vec3 relationPos{0, cardsTall_-1, 10};
+    const glm::vec3 rowRelPos = relationPos + glm::vec3(0, -1.2, 0);
+
+    const glm::vec3 onePileRight{1 + (cardsWide_ - 7)/6, 0, 0};
+    const glm::vec3 oneCardDown{0, -0.25, 0};
+    const glm::vec3 oneLevelForward{0.0f, 0.0f, 1};
 
     std::shared_ptr<LTK::ResourceManager> resourceManager_;
     std::unique_ptr<SceneRenderer> sceneRenderer_;
 
-    // std::shared_ptr<Card> singleCard_;
+
     std::vector<std::shared_ptr<Card>> deck_;
+
+    std::vector<Pile> piles_;
 
 public:
     // Initialize all game resources and so on

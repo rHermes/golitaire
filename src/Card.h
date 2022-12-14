@@ -16,6 +16,7 @@ namespace gol {
 class Card : public SceneObject {
 private:
     const CardType type_;
+    bool faceup_{true};
 
 public:
     Card(CardSuite suite, CardMember member);
@@ -23,6 +24,9 @@ public:
     [[nodiscard]] CardSuite getSuite() const;
     [[nodiscard]] CardMember getMember() const;
     [[nodiscard]] CardType getType() const;
+
+    void setFaceup(bool yes);
+    [[nodiscard]] bool isFaceup() const;
 };
 
 } // gol
