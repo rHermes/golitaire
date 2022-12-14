@@ -31,7 +31,8 @@ private:
     std::unique_ptr<SceneRenderer> sceneRenderer_;
 
 
-    std::vector<std::shared_ptr<Card>> deck_;
+    Pile drawPile_{relationPos, Pile::GrowthType::OnTop};
+    Pile discardPile_{relationPos + onePileRight, Pile::GrowthType::Downward};
 
     std::vector<Pile> piles_;
 

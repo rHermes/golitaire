@@ -6,7 +6,6 @@
 
 #include <numbers>
 #include <algorithm>
-#include <random>
 #include <glad/gles2.h>
 
 using namespace gol;
@@ -53,6 +52,8 @@ void Game::init() {
     resourceManager_ = std::make_shared<LTK::ResourceManager>();
     sceneRenderer_ = std::make_unique<SceneRenderer>(resourceManager_);
 
+    drawPile_.setGrowthType(Pile::GrowthType::OnTop);
+
     // We create the deck of cards.
     std::vector<CardSuite> suits{{CardSuite::Spades, CardSuite::Diamonds, CardSuite::Clubs, CardSuite::Hearts}};
     std::vector<CardMember> members{{
@@ -67,8 +68,14 @@ void Game::init() {
 
         auto card = std::make_shared<Card>(suits[suiteIdx], members[memberIdx]);
 
-        deck_.push_back(card);
+        drawPile_.addCard(card);
         sceneRenderer_->addCard(card);
+    }
+
+    // We need to add 7 piles.
+    for (auto i = 0; i < 7; i++) {
+        const auto pos = rowRelPos + static_cast<float>(i)*onePileRight;
+        piles_.emplace_back(pos);
     }
 
     restartGame();
@@ -77,47 +84,46 @@ void Game::init() {
 
 void Game::restartGame() {
     // First we shuffle the deck
-    std::random_device rd;
-    std::mt19937 g(rd());
+
+    while (!discardPile_.empty()) {
+        auto card = discardPile_.popTop();
+        card->setFaceup(false);
+        drawPile_.addCard(std::move(card));
+    }
 
     // We move all card from the piles into the deck.
-    /*
     for (auto& pile : piles_) {
+        while (!pile.empty()) {
+            auto card = pile.popTop();
+            card->setFaceup(false);
+            drawPile_.addCard(std::move(card));
+        }
     }
-     */
 
-    std::shuffle(deck_.begin(), deck_.end(), g);
     // const float distVert = 0.1;
 
-    auto it = std::begin(deck_);
     for (int row = 0; row < 7; row++) {
         for (int pile = row; pile < 7; pile++) {
-            auto& card = *it;
-            it++;
+            auto card = drawPile_.popTop();
 
-            card->setFaceup(pile == row);
-
-            const auto pos = rowRelPos + static_cast<float>(pile)*onePileRight +
-                    static_cast<float>(row)*(oneCardDown + oneLevelForward);
-
-            card->setPosition(pos);
+            card->setFaceup(false);
+            piles_[pile].addCard(card);
         }
+    }
+
+    // For each front card in each pile we turn it up
+    for (const auto& pile : piles_) {
+        pile.top()->setFaceup(true);
     }
 
     // we move the next card to the top spot
     {
-        auto& card = *it;
-        it++;
-
-        card->setPosition(relationPos + onePileRight);
+        auto card = drawPile_.popTop();
         card->setFaceup(true);
+        discardPile_.addCard(std::move(card));
     }
 
-    // The remaining cards are moved to the pile and swapped.
-    for (; it != std::end(deck_); ++it) {
-        auto& card = *it;
-
+    for (const auto& card : drawPile_) {
         card->setFaceup(false);
-        card->setPosition(relationPos);
     }
 }
