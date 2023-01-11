@@ -15,8 +15,9 @@ void Game::resizeViewport(int width, int height) {
     vpHeight = height;
     glViewport(0, 0, width, height);
 
-
-    // We also need to reposition the cards.
+    if (sceneRenderer_) {
+        sceneRenderer_->setWindowSize(width, height);
+    }
 }
 
 
@@ -30,7 +31,7 @@ void Game::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-    sceneRenderer_->render(vpWidth, vpHeight, cardsWide_, cardsTall_);
+    sceneRenderer_->render();
 }
 
 void Game::init() {
@@ -52,7 +53,9 @@ void Game::init() {
     resourceManager_ = std::make_shared<LTK::ResourceManager>();
     sceneRenderer_ = std::make_unique<SceneRenderer>(resourceManager_);
 
-    drawPile_.setGrowthType(Pile::GrowthType::OnTop);
+    sceneRenderer_->setCardsTall(cardsTall_);
+    sceneRenderer_->setCardsWide(cardsWide_);
+    sceneRenderer_->setWindowSize(vpWidth, vpHeight);
 
     // We create the deck of cards.
     std::vector<CardSuite> suits{{CardSuite::Spades, CardSuite::Diamonds, CardSuite::Clubs, CardSuite::Hearts}};

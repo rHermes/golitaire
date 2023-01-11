@@ -81,22 +81,6 @@ SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
             {2, 3, 0}, // Second triangle
     };
 
-    // We need to prepare the card unit mesh, as we are going to be drawing it.
-    // It's in  upper left, upper right, lower right, lower left
-    // We need 2 of them, as we need to have the texture coordinate the other way on the back of the card
-    const std::vector<LTK::Vertex> cardFrontVertices = {
-            // Front face
-            {{-0.5,  0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // Front face, Upper left
-            {{ 0.5,  0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // Front face, Upper right
-            {{ 0.5, -0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // Front face, Lower right
-            {{-0.5, -0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}, // Front face, Lower left
-    };
-
-    const std::vector<glm::uvec3> cardFrontIndices = {
-            {0, 1, 2}, // First triangle
-            {2, 3, 0}, // Second triangle
-    };
-
     const std::vector<LTK::Vertex> cardBackVertices = {
             // BackFace
             {{-0.5,  0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // Back Face Upper left
@@ -104,15 +88,6 @@ SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
             {{ 0.5, -0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}, // Back Face, Lower right
             {{-0.5, -0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // Back Face, Lower left
     };
-    /*
-    const std::vector<LTK::Vertex> cardBackVertices = {
-            // BackFace
-            {{-cardWidth_/2,  cardHeight_/2, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // Back Face Upper left
-            {{ cardWidth_/2,  cardHeight_/2, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // Back Face, Upper right
-            {{ cardWidth_/2, -cardHeight_/2, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}, // Back Face, Lower right
-            {{-cardWidth_/2, -cardHeight_/2, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // Back Face, Lower left
-    };
-     */
 
     const std::vector<glm::uvec3> cardBackIndices = {
             {1, 0, 3}, // First triangle
@@ -132,11 +107,11 @@ SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
     cardFrontVAO_.bind();
 
     cardFrontVBO_.bind();
-    cardFrontVBO_.bufferData(LTK::BufferUsage::StaticDraw, std::span(cardFrontVertices));
+    cardFrontVBO_.bufferData(LTK::BufferUsage::StaticDraw, std::span(cardFrontVertices_));
     LTK::Vertex::setupAttribs();
 
     cardFrontEBO_.bind();
-    cardFrontEBO_.bufferData(LTK::BufferUsage::StaticDraw, std::span(cardFrontIndices));
+    cardFrontEBO_.bufferData(LTK::BufferUsage::StaticDraw, std::span(cardFrontIndices_));
 
     // Bind the back
     cardBackVAO_.bind();
@@ -149,44 +124,11 @@ SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
     cardBackEBO_.bufferData(LTK::BufferUsage::StaticDraw, std::span(cardBackIndices));
 
     cardBackVAO_.unbind();
+
+    recomputeMatrixes();
 }
 
-void SceneRenderer::render(const int windowWidth, const int windowHeight, const float cardsWide, const float cardsTall) {
-    const float fWW = static_cast<float>(windowWidth);
-    const float fWH = static_cast<float>(windowHeight);
-
-    const float boardBuffer = 15;
-
-    const auto boardWidth = cardWidth_ * cardsWide + 2*boardBuffer;
-    const auto boardHeight = cardHeight_ * cardsTall +2*boardBuffer;
-
-    const auto boardScale = std::min(fWW/boardWidth, fWH/boardHeight);
-
-    const auto boardWidthPx = boardScale * boardWidth;
-    const auto boardHeightPx = boardScale * boardHeight;
-
-    glm::mat4 cardWorld = glm::mat4(1.0f);
-
-    // Now move it to the center of the screen
-    cardWorld = glm::translate(cardWorld, {(fWW - boardWidthPx)/2, (fWH - boardHeightPx)/2, 0});
-
-    // Apply the buffer
-    cardWorld = glm::translate(cardWorld, {boardBuffer, boardBuffer, 0});
-    cardWorld = glm::scale(cardWorld, {boardScale, boardScale, 0});
-    cardWorld = glm::translate(cardWorld, {cardWidth_/2, cardHeight_/2, 0});
-    cardWorld = glm::scale(cardWorld, glm::vec3(cardWidth_, cardHeight_,0));
-
-    const glm::vec3 cameraPos{0.0f, 0.0f, 10.0f};
-    glm::mat4 view = glm::mat4(1.0f);
-
-    // Eye, center, up
-    view = glm::lookAt(cameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::ortho(0.0f, static_cast<float>(windowWidth), 0.0f, static_cast<float>(windowHeight), 0.1f, 100.0f);
-
-    const glm::mat4 vp = projection * view;
-
+void SceneRenderer::render() {
     // We draw the background
     {
         backgroundVAO_.bind();
@@ -210,7 +152,7 @@ void SceneRenderer::render(const int windowWidth, const int windowHeight, const 
         const auto& card = it->second;
 
         // We move the things to the middle of the screen
-        const glm::mat4 mvp = vp * cardWorld * card->getTransform();
+        const glm::mat4 mvp = viewport_ * cardWorld_ * card->getTransform();
         prog.setMat4("mvp", mvp);
 
 
@@ -230,4 +172,76 @@ void SceneRenderer::addCard(std::shared_ptr<Card> card) {
 
 void SceneRenderer::removeCard(const std::shared_ptr<Card> &card) {
     cards_.erase(card);
+}
+
+void SceneRenderer::setCardsWide(float cardsWide) {
+    cardsWide_ = cardsWide;
+    recomputeMatrixes();
+}
+
+void SceneRenderer::setCardsTall(float cardsTall) {
+    cardsTall_ = cardsTall;
+    recomputeMatrixes();
+}
+
+void SceneRenderer::setWindowSize(int width, int height) {
+    windowWidth_ = width;
+    windowHeight_ = height;
+    recomputeMatrixes();
+}
+
+void SceneRenderer::recomputeMatrixes() {
+    const float fWW = static_cast<float>(windowWidth_);
+    const float fWH = static_cast<float>(windowHeight_);
+
+    const float boardBuffer = 15;
+
+    const auto boardWidth = cardWidth_ * cardsWide_ + 2*boardBuffer;
+    const auto boardHeight = cardHeight_ * cardsTall_ +2*boardBuffer;
+
+    const auto boardScale = std::min(fWW/boardWidth, fWH/boardHeight);
+
+    const auto boardWidthPx = boardScale * boardWidth;
+    const auto boardHeightPx = boardScale * boardHeight;
+
+    cardWorld_ = glm::mat4(1.0f);
+
+    // Now move it to the center of the screen
+    cardWorld_ = glm::translate(cardWorld_, {(fWW - boardWidthPx)/2, (fWH - boardHeightPx)/2, 0});
+
+    // Apply the buffer
+    cardWorld_ = glm::translate(cardWorld_, {boardBuffer, boardBuffer, 0});
+    cardWorld_ = glm::scale(cardWorld_, {boardScale, boardScale, 0});
+    cardWorld_ = glm::translate(cardWorld_, {cardWidth_/2, cardHeight_/2, 0});
+    cardWorld_ = glm::scale(cardWorld_, glm::vec3(cardWidth_, cardHeight_,0));
+
+    const glm::vec3 cameraPos{0.0f, 0.0f, 10.0f};
+    glm::mat4 view = glm::mat4(1.0f);
+
+    // Eye, center, up
+    view = glm::lookAt(cameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = glm::ortho(0.0f, static_cast<float>(windowWidth_), 0.0f, static_cast<float>(windowHeight_), 0.1f, 100.0f);
+
+    viewport_ = projection * view;
+}
+
+std::shared_ptr<Card> SceneRenderer::hitTestCards(const glm::vec2 &pos) const {
+    // TODO(rHermes): Don't do this at runtime, but rather once the cards have been updated
+    std::multimap<float, decltype(cards_)::value_type> cardsSorted;
+    for (const auto& card : cards_) {
+        cardsSorted.emplace(-card->getPosition().z, card);
+    }
+
+    // We now draw them in reverse order
+    for (auto it = std::rbegin(cardsSorted); it != std::rend(cardsSorted); ++it) {
+        const auto& card = it->second;
+
+        // We move the things to the middle of the screen
+        const glm::mat4 mvp = viewport_ * cardWorld_ * card->getTransform();
+    }
+
+
+ return nullptr;
 }

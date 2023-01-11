@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <cstddef>
-
 namespace gol {
     namespace utils {
         template <class T>

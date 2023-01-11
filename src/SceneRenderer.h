@@ -11,6 +11,7 @@
 #include "LTK/VAO.h"
 #include "Card.h"
 #include "LTK/Buffer.h"
+#include "LTK/Vertex.h"
 
 namespace gol {
 
@@ -21,6 +22,24 @@ namespace gol {
         static constexpr float cardWidth_ = 63.0f;
         static constexpr float cardHeight_ = 88.0f;
 
+        const std::vector<LTK::Vertex> cardFrontVertices_ = {
+                // Front face
+                {{-0.5,  0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}, // Front face, Upper left
+                {{ 0.5,  0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // Front face, Upper right
+                {{ 0.5, -0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // Front face, Lower right
+                {{-0.5, -0.5, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}, // Front face, Lower left
+        };
+
+        const std::vector<glm::uvec3> cardFrontIndices_ = {
+                {0, 1, 2}, // First triangle
+                {2, 3, 0}, // Second triangle
+        };
+
+        int windowWidth_{1};
+        int windowHeight_{1};
+
+        float cardsTall_{0.1f};
+        float cardsWide_{0.1f};
 
         std::shared_ptr<LTK::ResourceManager> resManager_;
 
@@ -47,6 +66,10 @@ namespace gol {
 
         std::set<std::shared_ptr<Card>> cards_;
 
+        glm::mat4 viewport_;
+        glm::mat4 cardWorld_;
+        void recomputeMatrixes();
+
     public:
         explicit SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager);
         ~SceneRenderer();
@@ -62,7 +85,14 @@ namespace gol {
         void addCard(std::shared_ptr<Card> card);
         void removeCard(const std::shared_ptr<Card>& card);
 
-        void render(int windowWidth, int windowHeight, float cardsWide, float cardsTall);
+        void setCardsWide(float cardsWide);
+        void setCardsTall(float cardsTall);
+        void setWindowSize(int width, int height);
+
+        // Returns the topmost card, if any, that intersects with the given point.
+        [[nodiscard]] std::shared_ptr<Card> hitTestCards(const glm::vec2& pos) const;
+
+        void render();
     };
 
 } // gol
