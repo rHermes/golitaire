@@ -26,12 +26,14 @@ App::App() : glfwCtx_(App::glfwErrorCallback_) {
     glfwWindow_->setWindowUserPointer(this);
     glfwWindow_->setFramebufferCallback(App::glfwFramebufferSizeCallback_);
     glfwWindow_->setKeyCallback(App::glfwKeyCallback_);
+    glfwWindow_->setMousePositionCallback(App::glfwCursorPositionCallback_);
 }
 
 
 void App::run() {
     game.init();
 
+    spdlog::set_level(spdlog::level::debug);
     const double startTime = glfwCtx_.getTime();
     double prevTime = startTime;
     while (!glfwWindow_->windowShouldClose()) {
@@ -83,7 +85,7 @@ void App::handleFramebufferSizeEvent(int width, int height) {
     game.resizeViewport(width, height);
 }
 
-void App::glfwKeyCallback_(GLFWwindow *window, int key, int scancode, int action, int mods) {
+void App::glfwKeyCallback_(GLFWwindow *window, const int key, const int scancode, const int action, const int mods) {
     App *app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
     if (!app) {
         spdlog::error("Window app pointer is null, cannot execute key callback!");
@@ -91,6 +93,16 @@ void App::glfwKeyCallback_(GLFWwindow *window, int key, int scancode, int action
     }
 
     app->handleKeyInput(key, scancode, action, mods);
+}
+
+void App::glfwCursorPositionCallback_(GLFWwindow* window, const double x, const double y) {
+    App *app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+    if (!app) {
+        spdlog::error("Window app pointer is null, cannot execute mouse position callback!");
+        return;
+    }
+
+    app->handleMousePositionEvent(x, y);
 }
 
 void App::glfwFramebufferSizeCallback_(GLFWwindow *window, int width, int height) {
@@ -162,4 +174,10 @@ void App::handleKHRDebugOutput(GLenum source, GLenum type, unsigned int id, GLen
         default: fmt::print("Severity: SHOULD NEVER HAPPEN"); break;
     }
 }
+
+void App::handleMousePositionEvent(const double x, const double y) {
+    game.setMousePosition(x, y);
+}
+
+
 

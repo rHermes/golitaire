@@ -36,6 +36,10 @@ private:
 
     std::vector<Pile> piles_;
 
+    // The mouse position in screen space
+    glm::vec2 mousePos_;
+    glm::vec2 prevMousePos_;
+
 public:
     // Initialize all game resources and so on
     void init();
@@ -54,6 +58,9 @@ public:
     // things having to do with rendering.
     void render();
 
+    void setMousePosition(const float x, const float y) {
+        mousePos_ = {x, y};
+    }
 
     // This redeals the hands
     void restartGame();

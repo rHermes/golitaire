@@ -80,4 +80,8 @@ Window &Window::operator=(Window &&other) noexcept {
     return *this;
 }
 
+void Window::setMousePositionCallback(GLFWcursorposfun cb) {
+    glfwSetCursorPosCallback(window_, cb);
+}
+
 

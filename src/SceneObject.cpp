@@ -6,7 +6,7 @@
 
 using namespace gol;
 
-void SceneObject::updateTransform() {
+void SceneObject::updateTransform() const {
     // The order of transforms are:
     // pre -> scale -> rotate -> translate -> post
 
@@ -63,7 +63,7 @@ void SceneObject::setPosition(glm::vec3 pos) {
     transform_dirty_ = true;
 }
 
-const glm::mat4 &SceneObject::getTransform() {
+const glm::mat4 &SceneObject::getTransform() const {
     // We are a bit naughty here, and call the update transform here.
     if (transform_dirty_)
         updateTransform();

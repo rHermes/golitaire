@@ -7,6 +7,7 @@
 #include <numbers>
 #include <algorithm>
 #include <glad/gles2.h>
+#include <spdlog/spdlog.h>
 
 using namespace gol;
 
@@ -30,7 +31,6 @@ void Game::update(const double dt) {
 void Game::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
     sceneRenderer_->render();
 }
 
@@ -39,7 +39,7 @@ void Game::init() {
     glViewport(0, 0, vpWidth, vpHeight);
 
     // We need depth testing
-    // glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
     // We run this once here, but we should do it somewhere else?
     glEnable(GL_BLEND);

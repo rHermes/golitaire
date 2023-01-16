@@ -47,7 +47,7 @@ void Texture2D::upload(const GLsizei width,
         glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevID);
     }
 
-    // Set the unpack alignment
+    // Set unpack alignment
     glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
     glBindTexture(GL_TEXTURE_2D, ID_);

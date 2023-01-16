@@ -6,8 +6,12 @@
 #include "SceneRenderer.h"
 #include "LTK/Vertex.h"
 #include "LTK/Buffer.h"
+#include "LTK/Ray.h"
+#include "spdlog/spdlog.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/glm.hpp>
+#include "glm/gtx/string_cast.hpp"
 
 using namespace gol;
 
@@ -141,10 +145,13 @@ void SceneRenderer::render() {
     auto &prog = resManager_->getProgram(cardShader_);
     prog.use();
 
-    // TODO(rHermes): Don't do this at runtime, but rather once the cards have been updated
+    const auto gg = viewport_ * cardWorld_;
     std::multimap<float, decltype(cards_)::value_type> cardsSorted;
     for (const auto& card : cards_) {
-        cardsSorted.emplace(-card->getPosition().z, card);
+        const glm::mat4 mvp = gg * card->getTransform();
+        const glm::vec3 lol = gol::utils::toNDC(mvp * glm::vec4(0, 0, 0, 1));
+
+        cardsSorted.emplace(lol.z, card);
     }
 
     // We now draw them in reverse order
@@ -211,11 +218,11 @@ void SceneRenderer::recomputeMatrixes() {
 
     // Apply the buffer
     cardWorld_ = glm::translate(cardWorld_, {boardBuffer, boardBuffer, 0});
-    cardWorld_ = glm::scale(cardWorld_, {boardScale, boardScale, 0});
+    cardWorld_ = glm::scale(cardWorld_, {boardScale, boardScale, 1});
     cardWorld_ = glm::translate(cardWorld_, {cardWidth_/2, cardHeight_/2, 0});
-    cardWorld_ = glm::scale(cardWorld_, glm::vec3(cardWidth_, cardHeight_,0));
+    cardWorld_ = glm::scale(cardWorld_, glm::vec3(cardWidth_, cardHeight_, 1));
 
-    const glm::vec3 cameraPos{0.0f, 0.0f, 10.0f};
+    const glm::vec3 cameraPos{0.0f, 0.0f, 70.0f};
     glm::mat4 view = glm::mat4(1.0f);
 
     // Eye, center, up
@@ -224,24 +231,40 @@ void SceneRenderer::recomputeMatrixes() {
     glm::mat4 projection = glm::mat4(1.0f);
     projection = glm::ortho(0.0f, static_cast<float>(windowWidth_), 0.0f, static_cast<float>(windowHeight_), 0.1f, 100.0f);
 
+    viewModel_ = view;
+    projModel_ = projection;
     viewport_ = projection * view;
 }
 
 std::shared_ptr<Card> SceneRenderer::hitTestCards(const glm::vec2 &pos) const {
-    // TODO(rHermes): Don't do this at runtime, but rather once the cards have been updated
-    std::multimap<float, decltype(cards_)::value_type> cardsSorted;
+    const glm::vec3 pOrig = gol::utils::toNDC(viewport_ * glm::vec4(pos, 0.1, 1));
+    const glm::vec3 pEnd = gol::utils::toNDC(viewport_ * glm::vec4(pos, 100, 1));
+
+    const glm::vec3 pDelta = pEnd - pOrig;
+    const LTK::Ray ray(pOrig, pDelta);
+
+    std::shared_ptr<Card> nearest{nullptr};
+    auto minDist = std::numeric_limits<float>::max();
+
     for (const auto& card : cards_) {
-        cardsSorted.emplace(-card->getPosition().z, card);
-    }
-
-    // We now draw them in reverse order
-    for (auto it = std::rbegin(cardsSorted); it != std::rend(cardsSorted); ++it) {
-        const auto& card = it->second;
-
         // We move the things to the middle of the screen
         const glm::mat4 mvp = viewport_ * cardWorld_ * card->getTransform();
+
+        for (const auto& indices : cardFrontIndices_) {
+            const glm::vec3 v0 = gol::utils::toNDC(mvp * glm::vec4(cardFrontVertices_[indices.x].vertexPos, 1));
+            const glm::vec3 v1 = gol::utils::toNDC(mvp * glm::vec4(cardFrontVertices_[indices.y].vertexPos, 1));
+            const glm::vec3 v2 = gol::utils::toNDC(mvp * glm::vec4(cardFrontVertices_[indices.z].vertexPos, 1));
+
+            const auto pHit = ray.intersect(v0, v1, v2);
+            if (pHit) {
+                const auto dist = glm::distance(*pHit, pOrig);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearest = card;
+                }
+            }
+        }
     }
 
-
- return nullptr;
+    return nearest;
 }

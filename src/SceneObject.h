@@ -16,11 +16,13 @@ protected:
     glm::mat4 preTransform_{1.0f};
     glm::mat4 postTransform_{1.0f};
 
-    glm::mat4 transform_{1.0f};
-    bool transform_dirty_{true};
+    mutable bool transform_dirty_{true};
+    mutable glm::mat4 transform_{1.0f};
+
+
 
     // This is not really a const operation, but the semantics are const
-    void updateTransform();
+    void updateTransform() const;
 
 public:
     void setScale(float scale);
@@ -56,7 +58,7 @@ public:
     void prependPreTransform(const glm::mat4& preTrans);
 
 
-    [[nodiscard]] const glm::mat4& getTransform();
+    [[nodiscard]] const glm::mat4& getTransform() const;
     [[nodiscard]] const glm::vec3& getPosition() const;
 
 

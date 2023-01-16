@@ -9,13 +9,17 @@
 
 #include <glad/gles2.h>
 #include <span>
-
+#include <unordered_map>
 
 namespace LTK {
 
     class ShaderProgram {
     private:
         GLuint ID_{0};
+
+        mutable std::unordered_map<std::string, GLint> uniNameToId_;
+
+        [[nodiscard]] GLint getUniformLocation(const std::string& name) const;
 
     public:
         explicit ShaderProgram(GLuint ID);

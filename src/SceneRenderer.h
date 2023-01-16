@@ -66,6 +66,9 @@ namespace gol {
 
         std::set<std::shared_ptr<Card>> cards_;
 
+        glm::mat4 viewModel_;
+        glm::mat4 projModel_;
+
         glm::mat4 viewport_;
         glm::mat4 cardWorld_;
         void recomputeMatrixes();
