@@ -10,10 +10,6 @@
 
 using namespace LTK;
 
-
-
-
-
 ShaderProgram &ResourceManager::getProgram(const ResourceManager::Key &id) {
     const auto it = programs_.find(id);
     if (it == programs_.end())

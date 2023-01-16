@@ -6,7 +6,6 @@
 
 #include <string>
 #include <map>
-#include "Shader.h"
 #include "Texture2D.h"
 #include "ShaderProgram.h"
 

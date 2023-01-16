@@ -9,7 +9,7 @@
 #include <fmt/core.h>
 #include <vector>
 #include <utility>
-
+#include <spdlog/spdlog.h>
 using namespace LTK;
 
 
@@ -32,7 +32,7 @@ Shader::Shader(Shader::Type type, const std::string_view &sourceCode) {
         std::vector<GLchar> buffer(bufferSize + 1);
         glGetShaderInfoLog(ID_, static_cast<GLsizei>(buffer.size()), nullptr, buffer.data());
 
-        fmt::print("ERROR::SHADER::{}::COMPILATION_FAILED:\n{}\n", type, buffer.data());
+        spdlog::error("SHADER::{}::COMPILATION_FAILED:\n{}", type, buffer.data());
 
         throw std::runtime_error("Shader compilation failed");
     }
@@ -52,7 +52,7 @@ Shader Shader::loadFromDisk(Shader::Type type, const std::string_view &path) {
 
         return {type, shaderCode};
     } catch (std::ifstream::failure &e) {
-        fmt::print("ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: {}\n{}\n", path, e.what());
+        spdlog::error("SHADER::FILE_NOT_SUCCESSFULLY_READ: {}\n{}", path, e.what());
         throw;
     }
 }
