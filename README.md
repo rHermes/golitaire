@@ -15,6 +15,22 @@ Libraries used:
 - `glad`: opengl loading
 - `glm`: Mathematics
 
+## How to build
+
+```
+git clone --recursive https://github.com/rhermes/golitaire
+cd golitaire
+cmake -S . -B build -DCMAKE_BUILD_TYPE:STRING=Release
+cmake --build build --config Release
+```
+
+Now to run the program, you need to go into the directory and run it:
+
+```
+cd build/src/
+./golitaire
+```
+
 ## Things for next time
 
 These are some random thoughts that I think I would have done differently if I had done
