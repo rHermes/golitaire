@@ -84,4 +84,8 @@ void Window::setMousePositionCallback(GLFWcursorposfun cb) {
     glfwSetCursorPosCallback(window_, cb);
 }
 
+void Window::setMouseButtonCallback(GLFWmousebuttonfun cb) {
+    glfwSetMouseButtonCallback(window_, cb);
+}
+
 

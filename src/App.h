@@ -32,6 +32,7 @@ private:
     static void glfwKeyCallback_(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void glfwFramebufferSizeCallback_(GLFWwindow* window, int width, int height);
     static void glfwCursorPositionCallback_(GLFWwindow* window, double x, double y);
+    static void glfwMouseButtonCallback_(GLFWwindow* window, int button, int action, int mods);
 
 
     static void APIENTRY glKHRDebugOutputCallback(
@@ -42,14 +43,14 @@ private:
 
 
     void handleMousePositionEvent(double x, double y);
-
+    void handleMouseButtonEvent(int button, int action, int mods);
     void handleKeyInput(int key, int scancode, int action, int mods);
     void handleFramebufferSizeEvent(int width, int height);
     void handleKHRDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity,
                               GLsizei length, const char *message) const;
 
-    int windowWidth{640};
-    int windowHeight{480};
+    int windowWidth_{640};
+    int windowHeight_{480};
 
 public:
 

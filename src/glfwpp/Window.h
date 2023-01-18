@@ -30,6 +30,7 @@ namespace glfwpp {
         void setFramebufferCallback(GLFWframebuffersizefun cb);
         void setKeyCallback(GLFWkeyfun cb);
         void setMousePositionCallback(GLFWcursorposfun cb);
+        void setMouseButtonCallback(GLFWmousebuttonfun cb);
 
 
         void enableGLDebug(GLDEBUGPROCKHR cb, void* userdata);

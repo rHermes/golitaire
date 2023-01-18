@@ -11,6 +11,11 @@
 
 namespace gol {
 
+    enum class MouseButton {
+        Right,
+        Left
+    };
+
 class Game {
 private:
     // These are viewport height and width
@@ -40,6 +45,9 @@ private:
     glm::vec2 mousePos_;
     glm::vec2 prevMousePos_;
 
+    // Mouse buttons
+    std::unordered_map<MouseButton,bool> mouseButtons_;
+
 public:
     // Initialize all game resources and so on
     void init();
@@ -58,9 +66,10 @@ public:
     // things having to do with rendering.
     void render();
 
-    void setMousePosition(const float x, const float y) {
-        mousePos_ = {x, y};
-    }
+    void setMousePosition(float x, float y);
+
+    void setMouseButtonState(MouseButton button, bool pressed);
+    [[nodiscard]] bool getMouseButtonState(MouseButton button) const;
 
     // This redeals the hands
     void restartGame();

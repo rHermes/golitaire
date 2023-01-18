@@ -162,7 +162,6 @@ void SceneRenderer::render() {
         const glm::mat4 mvp = viewport_ * cardWorld_ * card->getTransform();
         prog.setMat4("mvp", mvp);
 
-
         cardFrontVAO_.bind();
         resManager_->getTexture(cardTextures_[card->getType()]).bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

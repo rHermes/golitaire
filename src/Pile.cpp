@@ -59,6 +59,7 @@ glm::vec3 Pile::getDelta(Pile::GrowthType growthType) {
     }
 
     throw std::invalid_argument("We have provided an invalid growthType");
+
 }
 
 void Pile::setPosition(const glm::vec3 &position) {
@@ -80,3 +81,17 @@ void Pile::shuffle() {
 }
 
 Pile::Pile(const glm::vec3 &pos, Pile::GrowthType growthType) : position_(pos), growthType_(growthType) {}
+
+void Pile::removeCard(const std::shared_ptr<Card>& card) {
+    const auto it = std::find(std::cbegin(cards_), std::cend(cards_), card);
+    if (it == std::cend(cards_)) {
+        throw std::out_of_range("The pile does not have the car");
+    }
+    
+    cards_.erase(it);
+}
+
+bool Pile::hasCard(const std::shared_ptr<Card>& card) const {
+    const auto it = std::find(std::cbegin(cards_), std::cend(cards_), card);
+    return it != std::cend(cards_);
+}

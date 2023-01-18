@@ -39,8 +39,13 @@ namespace gol {
 
        void addCard(std::shared_ptr<Card> card);
 
+       // Throws exception, if card is not present
+       void removeCard(const std::shared_ptr<Card>& card);
+
        [[nodiscard]] bool empty() const;
        [[maybe_unused]] std::shared_ptr<Card> popTop();
+
+       [[nodiscard]] bool hasCard(const std::shared_ptr<Card>& card) const;
 
        [[nodiscard]] const glm::vec3& getPosition() const;
        void setPosition(const glm::vec3& position);

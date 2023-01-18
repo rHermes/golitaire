@@ -23,6 +23,17 @@ void Game::resizeViewport(int width, int height) {
 
 
 void Game::processInput(const double dt) {
+    if (getMouseButtonState(MouseButton::Left)) {
+        // Ok, so we are here, let's try to remove the card we intersect with
+        const auto hCard = sceneRenderer_->hitTestCards(mousePos_);
+        if (hCard) {
+            spdlog::info("We hit a card!");
+        }
+    }
+
+
+    // We update the mouse position
+    prevMousePos_ = mousePos_;
 }
 
 void Game::update(const double dt) {
@@ -128,5 +139,23 @@ void Game::restartGame() {
 
     for (const auto& card : drawPile_) {
         card->setFaceup(false);
+    }
+}
+
+void Game::setMousePosition(const float x, const float y) {
+    mousePos_ = {x, y};
+}
+
+void Game::setMouseButtonState(MouseButton button, bool pressed) {
+    // spdlog::debug("We got a mouse event {} {}", static_cast<int>(button), pressed);
+    mouseButtons_[button] = pressed;
+}
+
+bool Game::getMouseButtonState(const MouseButton button) const {
+    const auto it = mouseButtons_.find(button);
+    if (it != std::cend(mouseButtons_)) {
+        return it->second;
+    } else {
+        return false;
     }
 }

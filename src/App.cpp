@@ -13,7 +13,7 @@ using namespace gol;
 
 App::App() : glfwCtx_(App::glfwErrorCallback_) {
     glfwWindow_ = std::make_unique<glfwpp::Window>(glfwpp::WindowBuilder()
-            .setWindowSize(windowWidth, windowHeight)
+            .setWindowSize(windowWidth_, windowHeight_)
             .setDebug(wantGlDebug)
             .build());
 
@@ -21,12 +21,13 @@ App::App() : glfwCtx_(App::glfwErrorCallback_) {
         glfwWindow_->enableGLDebug(App::glKHRDebugOutputCallback, this);
     }
 
-    game.resizeViewport(windowWidth, windowHeight);
+    game.resizeViewport(windowWidth_, windowHeight_);
 
     glfwWindow_->setWindowUserPointer(this);
     glfwWindow_->setFramebufferCallback(App::glfwFramebufferSizeCallback_);
     glfwWindow_->setKeyCallback(App::glfwKeyCallback_);
     glfwWindow_->setMousePositionCallback(App::glfwCursorPositionCallback_);
+    glfwWindow_->setMouseButtonCallback(App::glfwMouseButtonCallback_);
 }
 
 
@@ -79,8 +80,8 @@ void App::handleKeyInput(int key, int scancode, int action, int mods) {
 
 void App::handleFramebufferSizeEvent(int width, int height) {
     spdlog::debug("The framebuffer has been resized {}x{}!", width, height);
-    windowWidth = width;
-    windowHeight = height;
+    windowWidth_ = width;
+    windowHeight_ = height;
 
     game.resizeViewport(width, height);
 }
@@ -176,7 +177,29 @@ void App::handleKHRDebugOutput(GLenum source, GLenum type, unsigned int id, GLen
 }
 
 void App::handleMousePositionEvent(const double x, const double y) {
-    game.setMousePosition(x, y);
+    // we have to convert this to the actual coordinates.
+    game.setMousePosition(static_cast<float>(x), static_cast<float>(windowHeight_ - y));
+}
+
+void App::glfwMouseButtonCallback_(GLFWwindow *window, int button, int action, int mods) {
+    App *app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+    if (!app) {
+        spdlog::error("Window app pointer is null, cannot execute mouse button callback!");
+        return;
+    }
+
+    app->handleMouseButtonEvent(button, action, mods);
+}
+
+void App::handleMouseButtonEvent(const int button, const int action, const int mods) {
+    switch (button) {
+        case GLFW_MOUSE_BUTTON_LEFT:
+            game.setMouseButtonState(MouseButton::Left, action == GLFW_PRESS); break;
+        case GLFW_MOUSE_BUTTON_RIGHT:
+            game.setMouseButtonState(MouseButton::Right, action == GLFW_PRESS); break;
+        default:
+            break;
+    }
 }
 
 
