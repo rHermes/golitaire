@@ -61,7 +61,6 @@ void App::handleKeyInput(int key, int scancode, int action, int mods) {
     }
 
     if (glad_glPolygonModeNV) {
-
         if (key == GLFW_KEY_W && action == GLFW_PRESS) {
             glPolygonModeNV(GL_FRONT_AND_BACK, GL_LINE_NV);
         }

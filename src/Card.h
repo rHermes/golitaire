@@ -8,12 +8,12 @@
 
 #include "glm/vec3.hpp"
 #include "glm/mat4x4.hpp"
-#include "SceneObject.h"
+#include "LTK/Item3D.h"
 
 
 namespace gol {
 
-class Card : public SceneObject {
+class Card : public LTK::Item3D {
 private:
     const CardType type_;
     bool faceup_{true};

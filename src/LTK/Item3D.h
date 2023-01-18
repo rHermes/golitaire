@@ -3,10 +3,10 @@
 #include <glm/fwd.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-namespace gol {
+namespace LTK {
 
     /// An object that will be rendered by the SceneRenderer
-class SceneObject {
+class Item3D {
 protected:
     // We store the rotation as a quaterion, but we may manipulate it anyway we want.
     glm::quat rotation_{1.0f, 0.0f, 0.0f, 0.0f};
@@ -18,8 +18,6 @@ protected:
 
     mutable bool transform_dirty_{true};
     mutable glm::mat4 transform_{1.0f};
-
-
 
     // This is not really a const operation, but the semantics are const
     void updateTransform() const;
@@ -60,8 +58,6 @@ public:
 
     [[nodiscard]] const glm::mat4& getTransform() const;
     [[nodiscard]] const glm::vec3& getPosition() const;
-
-
 };
 
 } // gol

@@ -3,7 +3,6 @@
 //
 
 #include "Card.h"
-#include "glm/ext/matrix_transform.hpp"
 #include <glm/gtc/quaternion.hpp>
 
 using namespace gol;

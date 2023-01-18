@@ -59,7 +59,7 @@ to go in the future.
 
 I hadn't really used this keyword ever before, but it turns out to be a perfect
 match for many of the caching operations in the code. Examples are the
-`getTransform()` from `SceneObject`, which is logically a `const` operation, but
+`getTransform()` from `Item3D`, which is logically a `const` operation, but
 since we lazily update the transform, it couldn't be marked as such. By using
 `mutable`, we can get the correct semantics logically, and keep the performance
 speedup.

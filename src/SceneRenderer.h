@@ -64,6 +64,8 @@ namespace gol {
         LTK::Buffer cardBackEBO_{LTK::Buffer::Type::EBO};
         LTK::VAO cardBackVAO_{};
 
+
+
         std::set<std::shared_ptr<Card>> cards_;
 
         glm::mat4 viewModel_;

@@ -141,9 +141,7 @@ void SceneRenderer::render() {
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     }
 
-    // Draw each card.
-    auto &prog = resManager_->getProgram(cardShader_);
-    prog.use();
+
 
     const auto gg = viewport_ * cardWorld_;
     std::multimap<float, decltype(cards_)::value_type> cardsSorted;
@@ -153,6 +151,10 @@ void SceneRenderer::render() {
 
         cardsSorted.emplace(lol.z, card);
     }
+
+    // Draw each card.
+    auto &prog = resManager_->getProgram(cardShader_);
+    prog.use();
 
     // We now draw them in reverse order
     for (auto it = std::rbegin(cardsSorted); it != std::rend(cardsSorted); ++it) {
