@@ -12,6 +12,8 @@
 #include "Card.h"
 #include "LTK/Buffer.h"
 #include "LTK/Vertex.h"
+#include "Viewport.h"
+#include "GraphicsRenderer2D.h"
 
 namespace gol {
 
@@ -35,13 +37,13 @@ namespace gol {
                 {2, 3, 0}, // Second triangle
         };
 
-        int windowWidth_{1};
-        int windowHeight_{1};
+        LTK::Viewport vp_{1, 1};
 
         float cardsTall_{0.1f};
         float cardsWide_{0.1f};
 
         std::shared_ptr<LTK::ResourceManager> resManager_;
+        LTK::GraphicsRenderer2D gfxRender_;
 
         PKey backgroundShader_{0};
         PKey backgroundTexture_{0};
@@ -68,11 +70,11 @@ namespace gol {
 
         std::set<std::shared_ptr<Card>> cards_;
 
-        glm::mat4 viewModel_;
-        glm::mat4 projModel_;
+        glm::mat4 viewModel_{0};
+        glm::mat4 projModel_{0};
+        glm::mat4 vpModel_{0};
 
-        glm::mat4 viewport_;
-        glm::mat4 cardWorld_;
+        glm::mat4 cardWorld_{0};
         void recomputeMatrixes();
 
     public:

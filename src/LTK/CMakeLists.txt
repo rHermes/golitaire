@@ -15,7 +15,7 @@ add_library(LTK
         FlexiBuffer.h
         GraphicsRenderer2D.cpp GraphicsRenderer2D.h
         stb_image_implementation.cpp
-        RenderItem2D.cpp RenderItem2D.h)
+        RenderItem2D.cpp RenderItem2D.h Viewport.h)
 
 set_target_properties(LTK
         PROPERTIES

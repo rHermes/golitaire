@@ -12,9 +12,10 @@
 using namespace gol;
 
 void Game::resizeViewport(int width, int height) {
-    vpWidth = width;
-    vpHeight = height;
-    glViewport(0, 0, width, height);
+    vp_.setWidth(width);
+    vp_.setHeight(height);
+
+    vp_.apply();
 
     if (sceneRenderer_) {
         sceneRenderer_->setWindowSize(width, height);
@@ -47,8 +48,7 @@ void Game::render() {
 
 void Game::init() {
     glClearColor(1.0f, 0.0f, 0.77f, 1.0f);
-    glViewport(0, 0, vpWidth, vpHeight);
-
+    vp_.apply();
     // We need depth testing
     glEnable(GL_DEPTH_TEST);
 
@@ -66,7 +66,7 @@ void Game::init() {
 
     sceneRenderer_->setCardsTall(cardsTall_);
     sceneRenderer_->setCardsWide(cardsWide_);
-    sceneRenderer_->setWindowSize(vpWidth, vpHeight);
+    sceneRenderer_->setWindowSize(vp_.width(), vp_.height());
 
     // We create the deck of cards.
     std::vector<CardSuite> suits{{CardSuite::Spades, CardSuite::Diamonds, CardSuite::Clubs, CardSuite::Hearts}};
@@ -115,6 +115,9 @@ void Game::restartGame() {
     }
 
     // const float distVert = 0.1;
+
+    // Now we shuffle the deck.
+    drawPile_.shuffle();
 
     for (int row = 0; row < 7; row++) {
         for (int pile = row; pile < 7; pile++) {

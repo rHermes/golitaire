@@ -10,7 +10,6 @@
 #include "spdlog/spdlog.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
-#include <glm/glm.hpp>
 #include "glm/gtx/string_cast.hpp"
 
 using namespace gol;
@@ -27,7 +26,10 @@ SceneRenderer::~SceneRenderer() {
     resManager_->removeProgram(backgroundShader_);
 }
 
-SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) : resManager_{std::move(resManager)} {
+SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
+    resManager_{std::move(resManager)}
+    , gfxRender_(resManager_)
+{
 
     backgroundShader_ = resManager_->loadShaderProgram("data/shaders/screen-space.vert", "data/shaders/default.frag");
     backgroundTexture_ = resManager_->loadTexture("data/textures/background.jpg", true);
@@ -144,7 +146,7 @@ void SceneRenderer::render() {
 
 
 
-    const auto gg = viewport_ * cardWorld_;
+    const auto gg = vpModel_ * cardWorld_;
     std::multimap<float, decltype(cards_)::value_type> cardsSorted;
     for (const auto& card : cards_) {
         const glm::mat4 mvp = gg * card->getTransform();
@@ -162,7 +164,7 @@ void SceneRenderer::render() {
         const auto& card = it->second;
 
         // We move the things to the middle of the screen
-        const glm::mat4 mvp = viewport_ * cardWorld_ * card->getTransform();
+        const glm::mat4 mvp = vpModel_ * cardWorld_ * card->getTransform();
         prog.setMat4("mvp", mvp);
 
         cardFrontVAO_.bind();
@@ -194,14 +196,14 @@ void SceneRenderer::setCardsTall(float cardsTall) {
 }
 
 void SceneRenderer::setWindowSize(int width, int height) {
-    windowWidth_ = width;
-    windowHeight_ = height;
+    vp_.setWidth(width);
+    vp_.setHeight(height);
     recomputeMatrixes();
 }
 
 void SceneRenderer::recomputeMatrixes() {
-    const float fWW = static_cast<float>(windowWidth_);
-    const float fWH = static_cast<float>(windowHeight_);
+    const float fWW = static_cast<float>(vp_.width());
+    const float fWH = static_cast<float>(vp_.height());
 
     const float boardBuffer = 15;
 
@@ -231,16 +233,16 @@ void SceneRenderer::recomputeMatrixes() {
     view = glm::lookAt(cameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::ortho(0.0f, static_cast<float>(windowWidth_), 0.0f, static_cast<float>(windowHeight_), 0.1f, 100.0f);
+    projection = glm::ortho(0.0f, static_cast<float>(vp_.width()), 0.0f, static_cast<float>(vp_.height()), 0.1f, 100.0f);
 
     viewModel_ = view;
     projModel_ = projection;
-    viewport_ = projection * view;
+    vpModel_ = projection * view;
 }
 
 std::shared_ptr<Card> SceneRenderer::hitTestCards(const glm::vec2 &pos) const {
-    const glm::vec3 pOrig = gol::utils::toNDC(viewport_ * glm::vec4(pos, 0.1, 1));
-    const glm::vec3 pEnd = gol::utils::toNDC(viewport_ * glm::vec4(pos, 100, 1));
+    const glm::vec3 pOrig = gol::utils::toNDC(vpModel_ * glm::vec4(pos, 0.1, 1));
+    const glm::vec3 pEnd = gol::utils::toNDC(vpModel_ * glm::vec4(pos, 100, 1));
 
     const glm::vec3 pDelta = pEnd - pOrig;
     const LTK::Ray ray(pOrig, pDelta);
@@ -250,7 +252,7 @@ std::shared_ptr<Card> SceneRenderer::hitTestCards(const glm::vec2 &pos) const {
 
     for (const auto& card : cards_) {
         // We move the things to the middle of the screen
-        const glm::mat4 mvp = viewport_ * cardWorld_ * card->getTransform();
+        const glm::mat4 mvp = vpModel_ * cardWorld_ * card->getTransform();
 
         for (const auto& indices : cardFrontIndices_) {
             const glm::vec3 v0 = gol::utils::toNDC(mvp * glm::vec4(cardFrontVertices_[indices.x].vertexPos, 1));

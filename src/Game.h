@@ -8,6 +8,7 @@
 #include "LTK/ResourceManager.h"
 #include "SceneRenderer.h"
 #include "Pile.h"
+#include "Viewport.h"
 
 namespace gol {
 
@@ -19,8 +20,7 @@ namespace gol {
 class Game {
 private:
     // These are viewport height and width
-    int vpWidth{1};
-    int vpHeight{1};
+    LTK::Viewport vp_{1, 1};
 
     const float cardsWide_{9.0f};
     const float cardsTall_{4.7f};
