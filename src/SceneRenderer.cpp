@@ -127,7 +127,8 @@ SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
     cardBackEBO_.bind();
     cardBackEBO_.bufferData(LTK::BufferUsage::StaticDraw, std::span(cardBackIndices));
 
-    cardBackVAO_.unbind();
+    // We unbind the VAO, as we don't want it to be polluted in another place.
+    LTK::unbindVAO();
 
     recomputeMatrixes();
 }

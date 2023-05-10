@@ -1,6 +1,6 @@
 # Golitaire
 
-OpenGL ES 3.0 solitaire. Very much work in progress.
+OpenGL ES 3.0 solitaire in C++20. Very much work in progress.
 
 Attempt to learn OpenGL and graphics programming, by making a very
 simple solitaire game.
@@ -85,6 +85,44 @@ but it avoids the Gimbal lock problem.
 
 It is important to note that this could be done without quaternions also, but
 they have other good properties, like nice interpolation between rotations.
+
+### OpenGL pipeline stalls are a thing
+
+This makes sense really, as I've done some vulkan programing before, and there you
+have to be quite specific with which objects goes where, to avoid concurrency issues.
+
+It seems that you could run into this problem with modifying the contents of buffer objects,
+if there is an asyncronos draw going on at the same time.
+
+The solution to this seems to be to have two draw buffers for everything, but this
+doesn't seem right to me. I'll have to consult on the internet about this.
+
+One solution seems to be to never use `glBufferSubData`, but instead always use
+`glBufferData`. This idiom requires more memory, but it ensures that the old data
+will be kept around for as long as it's referenced by something else, and then it
+will be removed. The new data is completely new. This way there is no backwards
+dependency. And no stalls.
+
+As long as this is done with the exact same size, the driver might be able to reuse
+the buffer later. It is important to realize that this is just another form of
+multibuffering, where you have multiple buffers allocated for each purpose, except
+that you get some of the managment aspects for free.
+
+Some drivers don't properly implement this, and so you can get problems on them,
+but I'll try it for now and see how it goes.
+
+Another point here, you can also have multiple buffers like suggested earlier,
+in a sort of buffer pool. This is essentially the solution outlined above,
+but you retain more control over the buffers. This has become the standard
+solution for vulkan, so I'm sure I'll have to touch that can of worms later.
+
+
+Resources:
+- https://www.khronos.org/opengl/wiki/Buffer_Object_Streaming
+- https://gdcvault.com/play/1020791/
+- http://www.diva-portal.org/smash/get/diva2:839513/FULLTEXT02
+- https://developer.arm.com/documentation/101897/0300/Buffers-and-textures/Buffer-update-for-OpenGL-ES
+- https://developer.samsung.com/galaxy-gamedev/resources/articles/opengl.html
 
 
 

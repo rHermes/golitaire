@@ -28,9 +28,5 @@ namespace LTK {
         [[nodiscard]] GLuint id() const;
 
         void bind();
-
-        void unbind() {
-            glBindVertexArray(0);
-        }
     };
 } // LTK

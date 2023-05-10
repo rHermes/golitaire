@@ -47,8 +47,8 @@ namespace gol {
         PKey backgroundTexture_{0};
 
 
-        LTK::Buffer backgroundVBO_{LTK::Buffer::Type::VBO};
-        LTK::Buffer backgroundEBO_{LTK::Buffer::Type::EBO};
+        LTK::Buffer<LTK::Vertex> backgroundVBO_{LTK::BufferType::Array, LTK::BufferUsage::StaticDraw, 4};
+        LTK::Buffer<glm::uvec3> backgroundEBO_{LTK::BufferType::ElementArray, LTK::BufferUsage::StaticDraw, 2};
         LTK::VAO backgroundVAO_{};
 
         PKey cardShader_{0};
@@ -56,12 +56,12 @@ namespace gol {
         PKey cardBack_{0};
         std::unordered_map<CardType, PKey> cardTextures_;
 
-        LTK::Buffer cardFrontVBO_{LTK::Buffer::Type::VBO};
-        LTK::Buffer cardFrontEBO_{LTK::Buffer::Type::EBO};
+        LTK::Buffer<LTK::Vertex> cardFrontVBO_{LTK::BufferType::Array, LTK::BufferUsage::StaticDraw, 4};
+        LTK::Buffer<glm::uvec3> cardFrontEBO_{LTK::BufferType::ElementArray, LTK::BufferUsage::StaticDraw, 2};
         LTK::VAO cardFrontVAO_{};
 
-        LTK::Buffer cardBackVBO_{LTK::Buffer::Type::VBO};
-        LTK::Buffer cardBackEBO_{LTK::Buffer::Type::EBO};
+        LTK::Buffer<LTK::Vertex> cardBackVBO_{LTK::BufferType::Array, LTK::BufferUsage::StaticDraw, 4};
+        LTK::Buffer<glm::uvec3> cardBackEBO_{LTK::BufferType::ElementArray, LTK::BufferUsage::StaticDraw, 2};
         LTK::VAO cardBackVAO_{};
 
 
