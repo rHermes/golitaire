@@ -4,5 +4,13 @@
 
 #include "Ellipse2D.h"
 
-namespace LTK {
-} // LTK
+using namespace LTK;
+
+Ellipse2D::Ellipse2D(EllipseRenderer2D &renderer, size_t renderIndex)
+: renderer_{renderer}, renderIndex_{renderIndex} {
+}
+
+void Ellipse2D::updateTransform() const {
+    Item3D::updateTransform();
+
+}

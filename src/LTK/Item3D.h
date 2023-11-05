@@ -11,7 +11,7 @@ protected:
     // We store the rotation as a quaterion, but we may manipulate it anyway we want.
     glm::quat rotation_{1.0f, 0.0f, 0.0f, 0.0f};
     glm::vec3 position_{0, 0, 0};
-    float scale_{1.0};
+    glm::vec3 scale_{1.0};
 
     glm::mat4 preTransform_{1.0f};
     glm::mat4 postTransform_{1.0f};
@@ -20,10 +20,15 @@ protected:
     mutable glm::mat4 transform_{1.0f};
 
     // This is not really a const operation, but the semantics are const
-    void updateTransform() const;
+    virtual void updateTransform() const;
 
 public:
     void setScale(float scale);
+    void setScale(glm::vec3 scale);
+    void setScaleX(const float scale);
+    void setScaleY(const float scale);
+    void setScaleZ(const float scale);
+
     void setPosition(glm::vec3 pos);
 
 

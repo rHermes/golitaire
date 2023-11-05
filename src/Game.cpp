@@ -97,8 +97,6 @@ void Game::init() {
 
 
 void Game::restartGame() {
-    // First we shuffle the deck
-
     while (!discardPile_.empty()) {
         auto card = discardPile_.popTop();
         card->setFaceup(false);

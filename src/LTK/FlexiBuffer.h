@@ -23,9 +23,11 @@ namespace LTK {
         bool dirty_{false};
 
 
-
     public:
         using value_type = T;
+        using size_type = std::vector<T>::size_type;
+        using reference = std::vector<T>::reference;
+        using const_reference = std::vector<T>::const_reference;
 
         FlexiBuffer(BufferType type, BufferUsage usage) : buffer_{type, usage, 0} {}
 
@@ -88,9 +90,23 @@ namespace LTK {
             return lel;
         }
 
+        constexpr void push_back(const T& value) {
+            vec_.push_back(value);
+            dirty_ = true;
+        }
 
+        constexpr void push_back(T&& value) {
+            vec_.push_back(std::forward<T>(value));
+            dirty_ = true;
+        }
 
+        [[nodiscard]] constexpr reference operator[]( size_type pos ) {
+            return vec_[pos];
+        };
 
+        [[nodiscard]] constexpr const_reference operator[]( size_type pos ) const {
+            return vec_[pos];
+        }
 
     };
 } // LTK

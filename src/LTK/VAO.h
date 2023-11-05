@@ -27,6 +27,6 @@ namespace LTK {
 
         [[nodiscard]] GLuint id() const;
 
-        void bind();
+        void bind() const;
     };
 } // LTK

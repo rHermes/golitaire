@@ -132,7 +132,12 @@ SceneRenderer::SceneRenderer(std::shared_ptr<LTK::ResourceManager> resManager) :
     // We unbind the VAO, as we don't want it to be polluted in another place.
     LTK::unbindVAO();
 
+    // We recompute the matrixes needed
     recomputeMatrixes();
+
+    // We now initalize the ellipse rendere and add it to the gfx renderer
+    ellipseRenderer2D_ = std::make_shared<LTK::EllipseRenderer2D>();
+    gfxRender_.addRenderItem(ellipseRenderer2D_);
 }
 
 void SceneRenderer::render() {

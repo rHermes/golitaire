@@ -22,7 +22,7 @@ GLuint VAO::id() const {
     return ID_;
 }
 
-void VAO::bind() {
+void VAO::bind() const {
     glBindVertexArray(ID_);
 }
 

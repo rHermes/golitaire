@@ -11,6 +11,9 @@ using namespace gol;
 Pile::Pile(const glm::vec3 &pos) : position_{pos} {
 }
 
+
+Pile::Pile(const glm::vec3 &pos, Pile::GrowthType growthType) : position_(pos), growthType_(growthType) {}
+
 void Pile::addCard(std::shared_ptr<Card> card) {
     const auto delta = getDelta(growthType_);
     card->setPosition(position_ + static_cast<float>(cards_.size()) * delta);
@@ -80,7 +83,6 @@ void Pile::shuffle() {
     repositionCards();
 }
 
-Pile::Pile(const glm::vec3 &pos, Pile::GrowthType growthType) : position_(pos), growthType_(growthType) {}
 
 void Pile::removeCard(const std::shared_ptr<Card>& card) {
     const auto it = std::find(std::cbegin(cards_), std::cend(cards_), card);

@@ -125,6 +125,21 @@ Resources:
 - https://developer.samsung.com/galaxy-gamedev/resources/articles/opengl.html
 
 
+### Need to use `public` keyword when deriving
+So I didn't know this, but in order for the subclass to be able to be passed
+to a function which expects the base class, you need to inherit with the
+`public` keyword. This is rather smart, taken from [this answer](https://stackoverflow.com/a/31506864):
+
+> `public` inheritance means "is-a". If you write that `class D` ("Derived") publicly inherits
+> from `class B` ("Base"), you are telling C++ compilers (as well as human readers of your code) 
+> that every object of type `D` is also an object of type `B`, but *not vice versa*
+
+And
+
+> `private` inheritance means "is-implemented-in-terms-of"
+
+This is a subtle difference, but now I know the difference!
+
 
 ## Attributions
 

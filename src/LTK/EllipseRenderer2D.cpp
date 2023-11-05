@@ -8,35 +8,45 @@
 
 using namespace LTK;
 
-void EllipseRenderer2D::render(const GraphicsRenderer2D& renderer) {
+void EllipseRenderer2D::render(const GraphicsRenderer2D& renderer, const glm::mat4& proj, const glm::mat4& view) {
     // We always need to check if we need to update the data.
     ellipseData_.updateData();
+
+
 }
 
 EllipseRenderer2D::EllipseRenderer2D() {
     vao_.bind();
 
     // Manually create quad. Remember it's clockwise
-    unitVBO_.emplace_back(-0.5f, 0.5f, 0.0f);
-    unitVBO_.emplace_back(0.5f, 0.5f, 0.0f);
-    unitVBO_.emplace_back(0.5f, -0.5f, 0.0f);
+    unitVBO_.push_back({{-0.5f,  0.5f, 0.0f}, {0.0f, 1.0f}});
+    unitVBO_.push_back({{ 0.5f,  0.5f, 0.0f}, {1.0f, 1.0f}});
+    unitVBO_.push_back({{ 0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}});
 
-    unitVBO_.emplace_back(-0.5f, 0.5f, 0.0f);
-    unitVBO_.emplace_back(0.5f, -0.5f, 0.0f);
-    unitVBO_.emplace_back(-0.5f, -0.5f, 0.0f);
+    unitVBO_.push_back({{-0.5f,  0.5f, 0.0f}, {0.0f, 1.0f}});
+    unitVBO_.push_back({{ 0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}});
+    unitVBO_.push_back({{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}});
 
     unitVBO_.bind();
-    using vboType = decltype(unitVBO_)::value_type;
-    const auto stride_size = sizeof(vboType);
-    const auto element_length = vboType::length();
-    glVertexAttribPointer(0,
-                          element_length, GL_FLOAT, false, stride_size, reinterpret_cast<void*>(0));
-    glEnableVertexAttribArray(0);
+    UnitQuadData::setupAttribs();
 
     ellipseData_.bind();
     EllipseData::setupAttribs();
 
     unbindVAO();
+}
+
+void EllipseRenderer2D::bindVAO() const {
+    vao_.bind();
+}
+
+std::size_t EllipseRenderer2D::count() const {
+    return ellipses_.size();
+}
+
+void EllipseRenderer2D::updateEllipseData(const std::size_t index) {
+    ellipseData_[index].transform = ellipses_[index]->getTransform();
+    ellipseData_[index].color = ellipses_[index]->getColor();
 }
 
 void EllipseRenderer2D::EllipseData::setupAttribs() {
@@ -58,4 +68,21 @@ void EllipseRenderer2D::EllipseData::setupAttribs() {
         glEnableVertexAttribArray(transform_loc+i);
         glVertexAttribDivisor(transform_loc+i, 1);
     }
+}
+
+void EllipseRenderer2D::UnitQuadData::setupAttribs() {
+    const auto stride_size = sizeof(UnitQuadData);
+    const auto position_offset = offsetof(UnitQuadData, position);
+    const auto texture_coordinate_offset = offsetof(UnitQuadData, texture_coordinate);
+
+    const auto texture_coordinate_location = 2;
+    const auto position_location = 0;
+
+    // Position location
+    glVertexAttribPointer(position_location, decltype(position)::length(), GL_FLOAT, false, stride_size, reinterpret_cast<void*>(position_offset));
+    glEnableVertexAttribArray(position_location);
+
+    // Texture coordinates
+    glVertexAttribPointer(texture_coordinate_location, decltype(texture_coordinate)::length(), GL_FLOAT, false, stride_size, reinterpret_cast<void*>(texture_coordinate_offset));
+    glEnableVertexAttribArray(texture_coordinate_location);
 }

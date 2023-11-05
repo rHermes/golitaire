@@ -14,6 +14,7 @@
 #include "LTK/Vertex.h"
 #include "Viewport.h"
 #include "GraphicsRenderer2D.h"
+#include "EllipseRenderer2D.h"
 
 namespace gol {
 
@@ -44,6 +45,8 @@ namespace gol {
 
         std::shared_ptr<LTK::ResourceManager> resManager_;
         LTK::GraphicsRenderer2D gfxRender_;
+
+        std::shared_ptr<LTK::EllipseRenderer2D> ellipseRenderer2D_;
 
         PKey backgroundShader_{0};
         PKey backgroundTexture_{0};

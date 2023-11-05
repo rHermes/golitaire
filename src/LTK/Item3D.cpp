@@ -13,7 +13,7 @@ void Item3D::updateTransform() const {
     transform_ = postTransform_;
     transform_ = glm::translate(transform_, position_);
     transform_ *= static_cast<glm::mat4>(rotation_);
-    transform_ = glm::scale(transform_, glm::vec3(scale_));
+    transform_ = glm::scale(transform_, scale_);
     transform_ *= preTransform_;
 
     transform_dirty_ = false;
@@ -53,8 +53,13 @@ void Item3D::prependPreTransform(const glm::mat4 &preTrans) {
     transform_dirty_ = true;
 }
 
-void Item3D::setScale(float scale) {
-    scale_ = scale;
+void Item3D::setScale(glm::vec3 scale) {
+    scale_ = std::move(scale);
+    transform_dirty_ = true;
+}
+
+void Item3D::setScale(const float scale) {
+    scale_ = glm::vec3(scale);
     transform_dirty_ = true;
 }
 
@@ -97,5 +102,20 @@ void Item3D::setRotation(const glm::vec3 &eulerAngles) {
 
 void Item3D::setRotation(const glm::quat &quaterion) {
     rotation_ = quaterion;
+    transform_dirty_ = true;
+}
+
+void Item3D::setScaleX(const float scale) {
+    scale_[0] = scale;
+    transform_dirty_ = true;
+}
+
+void Item3D::setScaleY(const float scale) {
+    scale_[1] = scale;
+    transform_dirty_ = true;
+}
+
+void Item3D::setScaleZ(const float scale) {
+    scale_[2] = scale;
     transform_dirty_ = true;
 }

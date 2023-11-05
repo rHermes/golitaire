@@ -58,4 +58,11 @@ namespace LTK {
     inline void unbindVAO() {
         glBindVertexArray(0);
     }
+
+    /**
+     * Unbind the current shaderP
+     */
+    inline void unbindShaderProgram() {
+        glUseProgram(0);
+    }
 }
