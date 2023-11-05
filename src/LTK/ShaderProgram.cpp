@@ -181,6 +181,7 @@ ShaderProgram::ShaderProgram(ShaderProgram &&other) noexcept {
 
 ShaderProgram& ShaderProgram::operator=(ShaderProgram &&other) noexcept {
     ID_ = std::exchange(other.ID_, 0);
+    uniNameToId_ = std::move(other.uniNameToId_);
     return *this;
 }
 
